@@ -1,13 +1,14 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 
-import { commands, registerCommands } from './commands.js';
+import { commands, handleCommands, registerCommands } from './commands';
 
 dotenv.config();
 
 // Create client object and list intents
 const client = new Client({ intents: [
     GatewayIntentBits.Guilds, 
+    GatewayIntentBits.DirectMessages,
 ]});
 
 // Process environment variables
@@ -22,20 +23,11 @@ if(!TOKEN || !CLIENT_ID){
 
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
-    console.log('Testing nodemon');
-  
     
     await registerCommands(CLIENT_ID, TOKEN);
+
+    handleCommands(client);
   });
 
-
-// Create commands
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
-    if (interaction.commandName === 'ping') {
-        await interaction.reply('Pong!');
-    }
-}); 
 
 client.login(TOKEN);
