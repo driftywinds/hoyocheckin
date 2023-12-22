@@ -1,12 +1,14 @@
-import {  REST, Routes, Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
+
+import { commands, registerCommands } from './commands.js';
 
 dotenv.config();
 
 // Create client object and list intents
 const client = new Client({ intents: [
     GatewayIntentBits.Guilds, 
-] });
+]});
 
 // Process environment variables
 const TOKEN = process.env.TOKEN;
@@ -17,31 +19,14 @@ if(!TOKEN || !CLIENT_ID){
     process.exit(1)
 }
 
-// Handle commands
-const commands = [
-{
-    name: 'ping',
-    description: 'Replies with Pong!',
-},
-];
 
-const rest = new REST({ version: '10' }).setToken(TOKEN);
-
-try {
-    console.log('Started refreshing application (/) commands.');
-
-    rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
-
-    console.log('Successfully reloaded application (/) commands.');
-} catch (error) {
-    console.error(error);
-}
-  
-
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
     console.log('Testing nodemon');
-});
+  
+    
+    await registerCommands(CLIENT_ID, TOKEN);
+  });
 
 
 // Create commands
