@@ -1,0 +1,19 @@
+{
+  "name": "hoyolab-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.10.5",
+    "@types/node-fetch": "^2.6.9",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "typescript": "^5.3.3"
+  }
+}
