@@ -16,6 +16,7 @@
     "@types/node-fetch": "^2.6.9",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
+    "hoyoapi": "^1.2.0",
     "typescript": "^5.3.3"
   }
 }

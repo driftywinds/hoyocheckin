@@ -1,5 +1,7 @@
 import { Client, Interaction ,REST, Routes } from 'discord.js';
 
+import { genshin_checkin } from './genshin/dailycheckin';
+
 export const commands = [
     {
         name: 'ping',
@@ -38,21 +40,28 @@ export const handleCommands = (client: Client) => {
                     await interaction.reply('Check your messages.');
 
                     const dmChannel = await interaction.user.createDM();
-                    await dmChannel.send('Please enter your login and password, separated by a space. For example\nMyUsername MyPassword');
+                    await dmChannel.send('Please enter your Hoyo Lab cookie');
 
                     const collector = dmChannel.createMessageCollector({ max: 1, time: 60000 });
 
-                    collector.on('collect', (message) => {
-                        const userInput = message.content.trim();
-                        const [login, password] = userInput.split(' ');
+                    collector.on('collect', async (message) => {
+                        const cookie = message.content.trim();
 
                         console.log(message.content);
 
-                        if (login && password) {
+                        if (cookie) {
 
                             //TODO Link hoyolab, hash password, add to database
 
-                            dmChannel.send(`Registration successful! \`Login: ${login}\`, \`Password: ${password}\``);
+                            const checkin = await genshin_checkin(cookie);
+
+                            if(checkin){
+                                //await dmChannel.send(`Successfully checked in!\n${checkin.reward}`);
+                                await dmChannel.send('Success!');
+                            }else{
+                                await dmChannel.send('Unable to check in');
+                            }
+                            
 
                         } else {
                             dmChannel.send('Invalid input. Please provide both login and password separated by a space. Do /register again.');
