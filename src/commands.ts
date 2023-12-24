@@ -1,6 +1,8 @@
 import { Client, Interaction ,REST, Routes } from 'discord.js';
 
-import { genshin_checkin } from './genshin/dailycheckin';
+import { autoSignFunction } from './genshin/dailycheckin';
+
+import { User } from './user';
 
 export const commands = [
     {
@@ -34,45 +36,80 @@ export const handleCommands = (client: Client) => {
         switch (interaction.commandName) {
             case 'register':
                 try {
+                    // Initialize token values
+                    let ltoken = '';
+                    let ltuid = '';
 
-                    //TODO Make option to add their own cookie or input login info to automatically get cookie
+                    await interaction.reply("Please check your DM's for further instruction.");
 
-                    await interaction.reply('Check your messages.');
-
+                    // Create dmChannel and send instructions
                     const dmChannel = await interaction.user.createDM();
-                    await dmChannel.send('Please enter your Hoyo Lab cookie');
 
-                    const collector = dmChannel.createMessageCollector({ max: 1, time: 60000 });
+                    await dmChannel.send('Please follow these instructions carefully.' +
+                        '\n1) Log onto https://www.hoyolab.com' +
+                        "\n2) Go into inspect element mode https://blog.hubspot.com/website/how-to-inspect#:~:text=let's%20learn%20how.-,How%20to%20Inspect%20Elements,PC%20to%20do%20the%20same." +
+                        "\n3) In inspect element, click the header that says 'Application' (you may need to make the inspect element portion larger to see it)" +
+                        "\n4) Find where it says 'Cookies' and click on the www.hoyolab.com cookie." +
+                        "\n5) There you will find where it says 'ltoken_v2' and 'ltuid_v2'. Copy those values");
 
-                    collector.on('collect', async (message) => {
-                        const cookie = message.content.trim();
+                    
+                    // Ask for ltoken_v2 and start collector
+                    await dmChannel.send('\nPlease enter your ltoken_v2 value');
+                    const ltokenCollector = dmChannel.createMessageCollector({ max: 1, time: 60000 });
 
-                        console.log(message.content);
+                    // Collect the ltoken_v2 value
+                    ltokenCollector.on('collect', async (message) => {
+                        const ltoken_v2 = message.content.trim();
 
-                        if (cookie) {
+                        if (ltoken_v2) {
+                            ltoken = 'ltoken_v2=' + ltoken_v2 + ';';
 
-                            //TODO Link hoyolab, hash password, add to database
+                            // Ask for ltuid_v2 and start collector
+                            await dmChannel.send('\nPlease enter your ltuid_v2 value');
+                            const ltuidCollector = dmChannel.createMessageCollector({ max: 1, time: 60000 });
 
-                            const checkin = await genshin_checkin(cookie);
+                            // Collect ltuid_v2 value
+                            ltuidCollector.on('collect', async (ltuidMessage) => {
+                                const ltuid_v2 = ltuidMessage.content.trim();
 
-                            if(checkin){
-                                //await dmChannel.send(`Successfully checked in!\n${checkin.reward}`);
-                                await dmChannel.send('Success!');
-                            }else{
-                                await dmChannel.send('Unable to check in');
-                            }
-                            
+                                if (ltuid_v2) {
+                                    ltuid = 'ltuid_v2=' + ltuid_v2 + ';';
 
+                                    // Save userData and write it into the json file
+                                    const userData: User = {
+                                        username: interaction.user.username,
+                                        genshin: false,
+                                        h_star_rail: false,
+                                        h_impact: false,
+                                        ltoken_v2: ltoken,
+                                        ltuid_v2: ltuid,
+                                    };
+
+                                    const fs = require('fs');
+                                    fs.writeFileSync('userData.json', JSON.stringify(userData));
+
+                                    // Send completion message
+                                    await dmChannel.send('Registration completed. Your cookies have been saved.');
+                                } else {
+                                    dmChannel.send('Invalid input. Please provide a valid ltuid_v2. Do /register again.');
+                                }
+                            });
+
+                            ltuidCollector.on('end', (collected, reason) => {
+                                if (reason === 'time') {
+                                    dmChannel.send('Registration canceled. No response received within the time limit.');
+                                    return;
+                                }   
+                            });
                         } else {
-                            dmChannel.send('Invalid input. Please provide both login and password separated by a space. Do /register again.');
+                            dmChannel.send('Invalid input. Please provide a valid ltoken_v2. Do /register again.');
                         }
-
-                        collector.stop();
                     });
 
-                    collector.on('end', (collected, reason) => {
+                    ltokenCollector.on('end', (collected, reason) => {
                         if (reason === 'time') {
-                            dmChannel.send('Registration canceled. No response received within the time limit.');
+                            dmChannel.send('Registration canceled. No response received within the time limit. (60s)');
+                            return;
                         }
                     });
                 } catch (error) {
