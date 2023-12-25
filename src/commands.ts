@@ -1,8 +1,8 @@
 import { Client, Interaction ,REST, Routes } from 'discord.js';
 
-import { autoSignFunction } from './genshin/dailycheckin';
+import { genshinCheckIn } from './genshin/dailycheckin';
 
-import { User } from './user';
+import { User } from './bot';
 
 export const commands = [
     {
@@ -62,7 +62,6 @@ export const handleCommands = (client: Client) => {
                         const ltoken_v2 = message.content.trim();
 
                         if (ltoken_v2) {
-                            ltoken = 'ltoken_v2=' + ltoken_v2 + ';';
 
                             // Ask for ltuid_v2 and start collector
                             await dmChannel.send('\nPlease enter your ltuid_v2 value');
@@ -73,7 +72,6 @@ export const handleCommands = (client: Client) => {
                                 const ltuid_v2 = ltuidMessage.content.trim();
 
                                 if (ltuid_v2) {
-                                    ltuid = 'ltuid_v2=' + ltuid_v2 + ';';
 
                                     // Save userData and write it into the json file
                                     const userData: User = {
@@ -81,8 +79,8 @@ export const handleCommands = (client: Client) => {
                                         genshin: false,
                                         h_star_rail: false,
                                         h_impact: false,
-                                        ltoken_v2: ltoken,
-                                        ltuid_v2: ltuid,
+                                        ltoken_v2: ltoken_v2,
+                                        ltuid_v2: ltuid_v2,
                                     };
 
                                     const fs = require('fs');

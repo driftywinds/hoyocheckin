@@ -2,8 +2,18 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 
 import { commands, handleCommands, registerCommands } from './commands';
+import { checkInAllUsers } from './autosignin';
 
 dotenv.config();
+
+export interface User{
+    username: string;
+    genshin: boolean;
+    h_star_rail: boolean;
+    h_impact: boolean;
+    ltoken_v2: string;
+    ltuid_v2: string;
+}
 
 // Create client object and list intents
 const client = new Client({ intents: [
@@ -27,6 +37,7 @@ client.on('ready', async () => {
     await registerCommands(CLIENT_ID, TOKEN);
 
     handleCommands(client);
+    checkInAllUsers();
   });
 
 

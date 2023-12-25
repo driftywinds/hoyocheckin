@@ -1,4 +1,4 @@
-export async function autoSignFunction(token: string, username: string): Promise<string> {
+export async function genshinCheckIn(token: string, username: string): Promise<string> {
     
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
   
@@ -29,7 +29,6 @@ export async function autoSignFunction(token: string, username: string): Promise
         const checkInResult: string = responseJson.message;
 
         let response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
-        console.log(response);
 
         return response;
     } catch (error) {
