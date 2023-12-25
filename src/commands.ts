@@ -1,6 +1,5 @@
 import { Client, Interaction ,REST, Routes } from 'discord.js';
-
-import { genshinCheckIn } from './genshin/dailycheckin';
+import * as fs from 'fs';
 
 import { User } from './bot';
 
@@ -34,11 +33,10 @@ export const handleCommands = (client: Client) => {
         if (!interaction.isChatInputCommand()) return;
 
         switch (interaction.commandName) {
+
+            // register command
             case 'register':
                 try {
-                    // Initialize token values
-                    let ltoken = '';
-                    let ltuid = '';
 
                     await interaction.reply("Please check your DM's for further instruction.");
 
@@ -70,24 +68,40 @@ export const handleCommands = (client: Client) => {
                             // Collect ltuid_v2 value
                             ltuidCollector.on('collect', async (ltuidMessage) => {
                                 const ltuid_v2 = ltuidMessage.content.trim();
+                            
+
 
                                 if (ltuid_v2) {
 
-                                    // Save userData and write it into the json file
-                                    const userData: User = {
-                                        username: interaction.user.username,
-                                        genshin: false,
-                                        h_star_rail: false,
-                                        h_impact: false,
-                                        ltoken_v2: ltoken_v2,
-                                        ltuid_v2: ltuid_v2,
-                                    };
+                                    try {
 
-                                    const fs = require('fs');
-                                    fs.writeFileSync('userData.json', JSON.stringify(userData));
+                                        // Gather all user's information from JSON
+                                        const fileContent: string = fs.readFileSync('userData.json', 'utf8');
+                                        const jsonData = JSON.parse(fileContent);
+                                        const existingUserData: User[] = jsonData.users;  
 
-                                    // Send completion message
-                                    await dmChannel.send('Registration completed. Your cookies have been saved.');
+                                        const newUser: User = {
+                                            username: interaction.user.username,
+                                            user_id: interaction.user.id,
+                                            genshin: false,
+                                            h_star_rail: false,
+                                            h_impact: false,
+                                            ltoken_v2: ltoken_v2,
+                                            ltuid_v2: ltuid_v2,
+                                        };
+                                    
+                                        const updatedUserData: User[] = [...existingUserData, newUser];
+                                        const updatedJsonData = { ...jsonData, users: updatedUserData };
+
+                                        fs.writeFileSync('userData.json', JSON.stringify(updatedJsonData));
+
+                                        // Send completion message
+                                        await dmChannel.send('Registration completed. Your cookies have been saved.');
+
+                                    } catch (error) {
+                                        console.error('Error reading or parsing userData.json:', error);
+                                    }
+
                                 } else {
                                     dmChannel.send('Invalid input. Please provide a valid ltuid_v2. Do /register again.');
                                 }

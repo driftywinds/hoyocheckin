@@ -8,6 +8,7 @@ dotenv.config();
 
 export interface User{
     username: string;
+    user_id: string;
     genshin: boolean;
     h_star_rail: boolean;
     h_impact: boolean;
@@ -30,15 +31,17 @@ if(!TOKEN || !CLIENT_ID){
     process.exit(1)
 }
 
-
+// When ready
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
     
+    // Register slash commands
     await registerCommands(CLIENT_ID, TOKEN);
-
     handleCommands(client);
+
+    // Check all registered users in
     checkInAllUsers();
-  });
+});
 
 
 client.login(TOKEN);
