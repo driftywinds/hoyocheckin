@@ -57,7 +57,7 @@ client.on('ready', async () => {
     const token = 'cookie_token_v2=v2_CAQSDGNlMXRidXdiMDB6axokYjYzY2JiMjctODQ0ZS00ZWNiLTk5OTgtMmU4ZDNlNjU5MjFhIMe5qKwGKOXSmGgwnZbeP0ILaGs0ZV9nbG9iYWw; account_mid_v2=1eei29p6gb_hy; account_id_v2=133663517;';
     await getUserInfo(token);
 
-    await redeemCode(token ,'GENSHINGIFT', '625739595');
+    await redeemCode(token ,'GENSHINGIFT', '625739595', 'Bianca');
 
 });
 

@@ -1,4 +1,4 @@
-export async function redeemCode(token: string, code: string, uid: string) {
+export async function redeemCode(token: string, code: string, uid: string, username: string) {
     const url = `https://sg-hk4e-api.hoyoverse.com/common/apicdkey/api/webExchangeCdkey?uid=${uid}&region=os_usa&lang=en&cdkey=${code}&game_biz=hk4e_global&sLangKey=en-us`;
 
     const header = {
@@ -17,13 +17,12 @@ export async function redeemCode(token: string, code: string, uid: string) {
     };
 
     try {
+        console.log(`Redeeming ${code} for ${username}`);
         const hoyolabResponse: Response = await fetch(url, options);
         const responseJson = await hoyolabResponse.json();
         
-        const checkInResult: string = responseJson.message;
-
-        console.log(checkInResult);
-
+        console.log(responseJson.message+'\n');
+        
     } catch (error) {
         console.error('Error during fetch:', error);
     }
