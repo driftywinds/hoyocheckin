@@ -11,11 +11,15 @@ import { redeemGenshinCode } from './genshin/redeemCode';
 
 dotenv.config();
 
+// Create uid object for user's profiles
 export interface UID {
     region: string;
     gameUid: any;
+    character: string;
+    level: number;
 }
 
+// Create user object
 export interface User{
     username: string;
     user_id: string;
@@ -48,21 +52,13 @@ client.on('ready', async () => {
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
 
-    // Schedule the task to run every day at 12:07 PM
-    const cronExpression = '7 12 * * *';
-    const interval = parseExpression(cronExpression);
-    interval.next();
-
-    setInterval(async () => {
-        console.log('Running checkInAllUsers at 12:07 PM');
-        await checkInAllUsers();
-    }, interval.next().getTime() - Date.now());
-
-    //const token = '_MHYUUID=df320a7d-6f52-4092-80bc-ef24dc890967; mi18nLang=en-us; DEVICEFP_SEED_ID=298835e741fd8e99; DEVICEFP_SEED_TIME=1703372478144; DEVICEFP=38d7f00e59d0c; HYV_LOGIN_PLATFORM_OPTIONAL_AGREEMENT={%22content%22:[]}; cookie_token_v2=v2_CAQSDGM5b3FhcTNzM2d1OBokZGYzMjBhN2QtNmY1Mi00MDkyLTgwYmMtZWYyNGRjODkwOTY3IIruqKwGKMLh0zgw8O_UP0ILYmJzX292ZXJzZWE; account_mid_v2=1i2lg7l14p_hy; account_id_v2=133511152; ltoken_v2=v2_CAISDGM5b3FhcTNzM2d1OBokZGYzMjBhN2QtNmY1Mi00MDkyLTgwYmMtZWYyNGRjODkwOTY3IIruqKwGKPuXm6sCMPDv1D9CC2Jic19vdmVyc2Vh; ltmid_v2=1i2lg7l14p_hy; ltuid_v2=133511152; HYV_LOGIN_PLATFORM_LOAD_TIMEOUT={}; HYV_LOGIN_PLATFORM_TRACKING_MAP={}; HYV_LOGIN_PLATFORM_LIFECYCLE_ID={%22value%22:%229a9d60ea-d64f-432d-9628-893b484c3e0c%22}';
-    //await getUserGenshinInfo(token);
+    const cronExpression = '7 12 * * *'; // 12:07 PM
+    const intervalId = scheduleTaskAtSpecificTime(cronExpression, async () => {
+        console.log('Checking all users in');
+       await checkInAllUsers();
+    });
 
 
-    //await redeemCode(token ,'GENSHINGIFT', '625643840', 'Nick');
 
 });
 
@@ -102,6 +98,28 @@ export function addNewUserToFile(filePath: string, newUser: User): void {
     users.push(newUser);
     writeUsersToFile(filePath, users);
 }
+
+// Function to schedule a task at a specific time every day
+const scheduleTaskAtSpecificTime = (cronExpression: string, task: () => Promise<void>, checkInterval: number = 60 * 1000) => {
+    const interval = parseExpression(cronExpression);
+
+    const runTask = async () => {
+        console.log('Running scheduled task');
+        await task();
+    };
+
+    const intervalId = setInterval(async () => {
+        const currentTime = Date.now();
+        const nextScheduledTime = interval.next().getTime();
+
+        if (currentTime >= nextScheduledTime) {
+            await runTask();
+        }
+    }, checkInterval);
+
+    // Return the interval ID in case you want to stop it later
+    return intervalId;
+};
 
 
 client.login(TOKEN);

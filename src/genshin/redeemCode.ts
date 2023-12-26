@@ -5,7 +5,8 @@ export async function redeemGenshinCode(user: User, code: string) {
 
     const uids: UID[] = user.genshin;
 
-    const user_cookies = stringify(user.pasted_cookie);
+    const user_cookies = 'cookie_token_v2='+user.pasted_cookie.cookie_token_v2+';'+'account_mid_v2='+user.pasted_cookie.account_mid_v2+';'+'account_id_v2='+user.pasted_cookie.account_id_v2+';';
+    
     const header = {
         Cookie: user_cookies,
         'Accept': 'application/json, text/plain, */*',
@@ -30,6 +31,7 @@ export async function redeemGenshinCode(user: User, code: string) {
             const hoyolabResponse: Response = await fetch(url, options);
             const responseJson = await hoyolabResponse.json();
             
+            console.log(responseJson);
             console.log(responseJson.message+'\n');
         }
 

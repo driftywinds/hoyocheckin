@@ -1,13 +1,18 @@
-export async function genshinCheckIn(token: string, username: string): Promise<string> {
+import { stringify } from "querystring";
+import { User } from "../bot";
+
+export async function genshinCheckIn(user: User): Promise<string> {
     
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
-  
+    const username = user.username;
+    const cookies = 'ltoken_v2='+user.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+user.pasted_cookie.ltuid_v2+';';
+
     if (!url) {
       return `Check-in skipped for ${username}: Genshin Impact check-in is disabled.`;
     }
 
-    const header: Record<string, string> = {
-        Cookie: token,
+    const header = {
+        Cookie: cookies,
         'Accept': 'application/json, text/plain, */*',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
@@ -17,7 +22,7 @@ export async function genshinCheckIn(token: string, username: string): Promise<s
         'Referer': 'https://act.hoyolab.com/',
         'Origin': 'https://act.hoyolab.com',
     };
-  
+    
     const options: RequestInit = {
       method: 'POST',
       headers: header,
@@ -28,8 +33,8 @@ export async function genshinCheckIn(token: string, username: string): Promise<s
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
 
-        let response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
-
+        const response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
+        
         return response;
     } catch (error) {
         console.error('Error during fetch:', error);

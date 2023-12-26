@@ -13,12 +13,11 @@ export async function checkInAllUsers() {
 
         // For every user, use their tokes to sign them in
         for(const user of userData){
-            //const { username, ltoken_v2, ltuid_v2 } = user;
 
-            //const result = await genshinCheckIn(`ltoken_v2=${ltoken_v2}; ltuid_v2=${ltuid_v2};`, username);
+            const result = await genshinCheckIn(user);
 
             // Print the result
-            //console.log(result);
+            console.log(result);
         }
     } catch(error){
         console.error('Error reading or parsing userData.json:', error);

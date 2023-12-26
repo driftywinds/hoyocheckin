@@ -1,6 +1,7 @@
+import { CommandInteraction, DMChannel } from "discord.js";
 import { UID } from "../bot";
 
-export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
+export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [
         { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_usa&game_biz=hk4e_global&sLangKey=en-us' },
         { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_euro&game_biz=hk4e_global&sLangKey=en-us' },
@@ -42,11 +43,29 @@ export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
             if (responseJson.retcode === 0 && responseJson.data.list.length > 0) {
 
                 const gameUid = responseJson.data.list[0].game_uid;
+                const character = responseJson.data.list[0].name;
+                const level:number = responseJson.data.list[0].level;
 
                 console.log(`Found UID for user in ${region}`);
 
+                if(dmChannel){
+                    let server:string = '';
+                    switch(region){
+                        case 'os_usa':
+                            server = 'America';
+                            break;
+                        case 'os_euro':
+                            server = 'Europe';
+                        case 'os_asia':
+                            server = 'Asia';
+                        case 'os_cht':
+                            server = 'CHT';
+                    }
+                    dmChannel.send(`**GENSHIN|** Server: __${server}__ Character: __${character}__ lvl: __${level}__`);
+                }
+
                 // Store the information for successful regions
-                successfulRegions.push({ region, gameUid });
+                successfulRegions.push({ region, gameUid, character, level });
             } else {
                 console.error(`Could not find UID for user in ${region}`);
             }
