@@ -5,7 +5,6 @@ import { parseExpression } from 'cron-parser';
 import { commands, handleCommands, registerCommands } from './commands';
 import { checkInAllUsers } from './checkin';
 import { getUserInfo } from './genshin/getUserInfo';
-import { genshinCheckIn } from './genshin/dailycheckin';
 import { redeemCode } from './genshin/redeemCode';
 
 dotenv.config();

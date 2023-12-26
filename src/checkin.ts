@@ -1,7 +1,7 @@
 import { User } from './bot';
 import * as fs from 'fs';
 
-import { genshinCheckIn } from './genshin/dailycheckin';
+import { genshinCheckIn } from './genshin/dailyCheckIn';
 
 export async function checkInAllUsers() {
     try {
