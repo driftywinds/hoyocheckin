@@ -1,11 +1,18 @@
 import { Client, Interaction ,REST, Routes } from 'discord.js';
 
 import { register } from './commands/register';
+import { redeemGenshinCode } from './genshin/redeemCode';
+
+import { readUsersFromFile, getUserById } from './bot';
 
 export const commands = [
     {
         name: 'register',
         description: 'Register here',
+    },
+    {
+        name: 'test',
+        description: 'Test redeem code',
     }
 ];
 
@@ -32,11 +39,28 @@ export const handleCommands = (client: Client) => {
             // register command
             case 'register':
                 register(interaction, client);
-                break;
                 
+                break;
+            
+
+            case 'test':
+                
+                const users = readUsersFromFile('userData.json');
+                const user = getUserById(users, interaction.user.id);
+
+                if (user) {
+                    redeemGenshinCode(user, 'GENSHINGIFT');
+                } else {
+                    console.log('User not found.');
+                }
+
+                break;
+
             default:
                 console.error(`Unknown command ${interaction.commandName}`);
         }
     });
 };
+
+
 
