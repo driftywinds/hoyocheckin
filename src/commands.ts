@@ -5,10 +5,6 @@ import { User } from './bot';
 
 export const commands = [
     {
-        name: 'ping',
-        description: 'Replies with Pong!',
-    },
-    {
         name: 'register',
         description: 'Register here',
     }
@@ -83,11 +79,12 @@ export const handleCommands = (client: Client) => {
                                         const newUser: User = {
                                             username: interaction.user.username,
                                             user_id: interaction.user.id,
-                                            genshin: false,
-                                            h_star_rail: false,
-                                            h_impact: false,
+                                            genshin: [],
+                                            h_star_rail: [],
+                                            h_impact: [],
                                             ltoken_v2: ltoken_v2,
                                             ltuid_v2: ltuid_v2,
+                                            pasted_cookie: '',
                                         };
                                     
                                         const updatedUserData: User[] = [...existingUserData, newUser];

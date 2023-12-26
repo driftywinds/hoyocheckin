@@ -24,3 +24,4 @@ export async function checkInAllUsers() {
         console.error('Error reading or parsing userData.json:', error);
     }
 }
+
