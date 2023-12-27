@@ -31,7 +31,7 @@ export async function register(interaction: CommandInteraction, client: Client){
                     cookieJSON[key] = value;
                 });
 
-                const genshinUIDs = await getUserGenshinInfo(cookie);
+                const genshinUIDs = await getUserGenshinInfo(cookie, dmChannel);
 
                 const newUser: User = {
                     'username': interaction.user.username,
@@ -42,7 +42,14 @@ export async function register(interaction: CommandInteraction, client: Client){
                     'pasted_cookie': cookieJSON
                 };     
 
-                addNewUserToFile('userData.json', newUser);
+                if(newUser.genshin.length == 0 && newUser.h_star_rail.length == 0 && newUser.h_impact.length == 0){
+                    dmChannel.send('No accounts were found with the provided cookies. Please try again.');
+                }else{
+                    dmChannel.send('Registration complete! The following accounts have been saved to your profile.');
+                    addNewUserToFile('userData.json', newUser);
+                }
+
+               
             } else {
                 dmChannel.send('Invalid input. Please provide a valid cookie. Do /register again.');
             }

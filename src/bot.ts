@@ -6,16 +6,15 @@ import * as fs from 'fs';
 
 import { commands, handleCommands, registerCommands } from './commands';
 import { checkInAllUsers } from './checkin';
-import { getUserGenshinInfo } from './genshin/getUserGenshinInfo';
-import { redeemGenshinCode } from './genshin/redeemCode';
 
 dotenv.config();
 
 // Create uid object for user's profiles
 export interface UID {
     region: string;
+    region_name: string;
     gameUid: any;
-    character: string;
+    nickname: string;
     level: number;
 }
 

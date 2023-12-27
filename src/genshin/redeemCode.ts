@@ -1,4 +1,3 @@
-import { stringify } from "querystring";
 import { User, UID } from "../bot";
 
 export async function redeemGenshinCode(user: User, code: string) {
@@ -30,9 +29,14 @@ export async function redeemGenshinCode(user: User, code: string) {
             console.log(`Redeeming ${code} for ${user.username} for region ${uid.region}`);
             const hoyolabResponse: Response = await fetch(url, options);
             const responseJson = await hoyolabResponse.json();
-            
+
             console.log(responseJson);
-            console.log(responseJson.message+'\n');
+            if(responseJson.data){
+                console.log('sending msg');
+                return responseJson.data.msg;
+            }
+            
+            return responseJson.message;
         }
 
     } catch (error) {

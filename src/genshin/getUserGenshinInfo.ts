@@ -42,30 +42,23 @@ export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel):
             // The request was successful and data.list is not empty
             if (responseJson.retcode === 0 && responseJson.data.list.length > 0) {
 
-                const gameUid = responseJson.data.list[0].game_uid;
-                const character = responseJson.data.list[0].name;
-                const level:number = responseJson.data.list[0].level;
+                const characterInfo = responseJson.data.list[0];
+
+                const gameUid = characterInfo.game_uid;
+                const nickname = characterInfo.nickname;
+                const level:number = characterInfo.level;
+                const region_name = characterInfo.region_name;
 
                 console.log(`Found UID for user in ${region}`);
 
+                console.log(`dmChannel ${dmChannel}`);
                 if(dmChannel){
-                    let server:string = '';
-                    switch(region){
-                        case 'os_usa':
-                            server = 'America';
-                            break;
-                        case 'os_euro':
-                            server = 'Europe';
-                        case 'os_asia':
-                            server = 'Asia';
-                        case 'os_cht':
-                            server = 'CHT';
-                    }
-                    dmChannel.send(`**GENSHIN|** Server: __${server}__ Character: __${character}__ lvl: __${level}__`);
+                    
+                    dmChannel.send(`**GENSHIN IMPACT ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
                 }
 
                 // Store the information for successful regions
-                successfulRegions.push({ region, gameUid, character, level });
+                successfulRegions.push({ region, gameUid, nickname, level, region_name });
             } else {
                 console.error(`Could not find UID for user in ${region}`);
             }
