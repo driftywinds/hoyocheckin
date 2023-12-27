@@ -2,9 +2,8 @@ import { Client, Interaction ,REST, Routes } from 'discord.js';
 
 import dotenv from 'dotenv';
 
-import { register } from './commands/register';
-import { redeemForAllUsers } from './commands/redeemForAllUsers';
-import { redeemCode } from './commands/redeemCode';
+import { register } from './commands/registerCommand';
+import { redeemForAllUsers, redeemCode } from './commands/redeemCommands';
 
 import { readUsersFromFile, getUserById, User } from './bot';
 
@@ -92,14 +91,17 @@ export const handleCommands = (client: Client) => {
             // redeem for all users command
             case 'redeem_allusers':
 
+                // Check if user is bot admin
                 if(interaction.user.id !== process.env.BOT_ADMIN_ID){
                     interaction.reply('You do not have permission to use this commadn.');
                     break;
                 }
 
+                // Collect paramaters
                 const game_all = interaction.options.getString('game', true);
                 const code_all = interaction.options.getString('code', true);
                
+                //Run redeemForAllUsers command
                 try {
                     await redeemForAllUsers(game_all, code_all);
                     interaction.reply('Redemption successful for all users.');
@@ -113,14 +115,17 @@ export const handleCommands = (client: Client) => {
             // redeem code for user command
             case 'redeem':
 
+                // Collect paramaters
                 const game_user = interaction.options.getString('game', true);
                 const code_user = interaction.options.getString('code', true);
                
                 try {
 
+                    // Get User object from userData
                     const users: User[] = readUsersFromFile('./userData.json');
                     const user: User | undefined = getUserById(users, interaction.user.id);
 
+                    // Run redeemCode command 
                     if(user){
                         const response = await redeemCode(game_user, code_user, user);
                         interaction.reply(response);

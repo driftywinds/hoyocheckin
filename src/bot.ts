@@ -5,7 +5,7 @@ import { parseExpression } from 'cron-parser';
 import * as fs from 'fs';
 
 import { commands, handleCommands, registerCommands } from './commands';
-import { checkInAllUsers } from './checkin';
+import { checkinAllUsers } from './hoyolab/checkinAllUsers';
 
 dotenv.config();
 
@@ -54,7 +54,7 @@ client.on('ready', async () => {
     const cronExpression = '7 12 * * *'; // 12:07 PM
     const intervalId = scheduleTaskAtSpecificTime(cronExpression, async () => {
         console.log('Checking all users in');
-       await checkInAllUsers();
+       await checkinAllUsers();
     });
 
 

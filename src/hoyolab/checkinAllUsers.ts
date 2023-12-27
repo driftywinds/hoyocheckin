@@ -1,9 +1,9 @@
-import { User } from './bot';
+import { User } from '../bot';
 import * as fs from 'fs';
 
-import { genshinCheckIn } from './genshin/dailyCheckIn';
+import { genshinCheckin } from '../genshin/checkin_genshin';
 
-export async function checkInAllUsers() {
+export async function checkinAllUsers() {
     try {
 
         // Gather all user's information from JSON
@@ -14,7 +14,7 @@ export async function checkInAllUsers() {
         // For every user, use their tokes to sign them in
         for(const user of userData){
 
-            const result = await genshinCheckIn(user);
+            const result = await genshinCheckin(user);
 
             // Print the result
             console.log(result);

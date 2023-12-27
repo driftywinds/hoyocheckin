@@ -1,6 +1,6 @@
 import { CommandInteraction, Client } from 'discord.js';
 import { User, addNewUserToFile } from '../bot';
-import { getUserGenshinInfo } from '../genshin/getUserGenshinInfo';
+import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 
 export async function register(interaction: CommandInteraction, client: Client){
     try {

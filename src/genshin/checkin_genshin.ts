@@ -1,7 +1,6 @@
-import { stringify } from "querystring";
 import { User } from "../bot";
 
-export async function genshinCheckIn(user: User): Promise<string> {
+export async function genshinCheckin(user: User): Promise<string> {
     
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
     const username = user.username;
@@ -28,6 +27,7 @@ export async function genshinCheckIn(user: User): Promise<string> {
       headers: header,
     };
   
+    // Check-in the user
     try {
         const hoyolabResponse: Response = await fetch(url, options);
         const responseJson = await hoyolabResponse.json();
