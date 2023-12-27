@@ -92,7 +92,7 @@ export const handleCommands = (client: Client) => {
             // redeem for all users command
             case 'redeem_allusers':
 
-                if(interaction.user.id != process.env.BOT_ADMIN_ID){
+                if(interaction.user.id !== process.env.BOT_ADMIN_ID){
                     interaction.reply('You do not have permission to use this commadn.');
                     break;
                 }
@@ -101,7 +101,7 @@ export const handleCommands = (client: Client) => {
                 const code_all = interaction.options.getString('code', true);
                
                 try {
-                    redeemForAllUsers(game_all, code_all);
+                    await redeemForAllUsers(game_all, code_all);
                     interaction.reply('Redemption successful for all users.');
                 } catch (error) {
                     console.error(error);
@@ -118,13 +118,12 @@ export const handleCommands = (client: Client) => {
                
                 try {
 
-
                     const users: User[] = readUsersFromFile('./userData.json');
                     const user: User | undefined = getUserById(users, interaction.user.id);
 
                     if(user){
-                        const response = await redeemCode(game_user, code_user, user)
-                        interaction.reply(`${response}`);
+                        const response = await redeemCode(game_user, code_user, user);
+                        interaction.reply(response);
                     }else{
                         interaction.reply('Could not find profile with your Discord ID.');
                     }

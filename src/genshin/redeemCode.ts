@@ -1,6 +1,6 @@
 import { User, UID } from "../bot";
 
-export async function redeemGenshinCode(user: User, code: string) {
+export async function redeemGenshinCode(user: User, code: string): Promise<string | undefined> {
 
     const uids: UID[] = user.genshin;
 
@@ -23,6 +23,8 @@ export async function redeemGenshinCode(user: User, code: string) {
 
     try {
 
+        let finalResponse: string = '';
+
         for(const uid of uids){
 
             const url = `https://sg-hk4e-api.hoyoverse.com/common/apicdkey/api/webExchangeCdkey?uid=${uid.gameUid}&region=${uid.region}&lang=en&cdkey=${code}&game_biz=hk4e_global&sLangKey=en-us`;
@@ -33,11 +35,14 @@ export async function redeemGenshinCode(user: User, code: string) {
             console.log(responseJson);
             if(responseJson.data){
                 console.log('sending msg');
-                return responseJson.data.msg;
+                console.log(responseJson.data.msg);
+                finalResponse += `**${uid.region_name}:** ${responseJson.data.msg}.\n`;
             }
             
-            return responseJson.message;
+            finalResponse += `**${uid.region_name}:** ${responseJson.message}.\n`;
         }
+
+        return finalResponse;
 
     } catch (error) {
         console.error('Error during fetch:', error);
