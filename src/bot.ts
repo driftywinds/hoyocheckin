@@ -51,7 +51,7 @@ client.on('ready', async () => {
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
 
-    const cronExpression = '7 12 * * *'; // 12:07 PM
+    const cronExpression = '25 20 * * *'; // 12:07 PM
     const intervalId = scheduleTaskAtSpecificTime(cronExpression, async () => {
         console.log('Checking all users in');
        await checkinAllUsers();

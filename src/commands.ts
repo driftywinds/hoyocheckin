@@ -93,7 +93,7 @@ export const handleCommands = (client: Client) => {
 
                 // Check if user is bot admin
                 if(interaction.user.id !== process.env.BOT_ADMIN_ID){
-                    interaction.reply('You do not have permission to use this commadn.');
+                    interaction.reply('You do not have permission to use this command.');
                     break;
                 }
 

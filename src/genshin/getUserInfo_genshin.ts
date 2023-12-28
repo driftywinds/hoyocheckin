@@ -51,7 +51,6 @@ export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel):
 
                 console.log(`Found UID for user in ${region}`);
 
-                console.log(`dmChannel ${dmChannel}`);
                 if(dmChannel){
                     
                     dmChannel.send(`**GENSHIN IMPACT ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);

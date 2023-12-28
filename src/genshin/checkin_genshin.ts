@@ -7,7 +7,7 @@ export async function genshinCheckin(user: User): Promise<string> {
     const cookies = 'ltoken_v2='+user.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+user.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
-      return `Check-in skipped for ${username}: Genshin Impact check-in is disabled.`;
+        return `Check-in skipped for ${username}: Genshin Impact check-in is disabled.`;
     }
 
     const header = {
@@ -23,8 +23,8 @@ export async function genshinCheckin(user: User): Promise<string> {
     };
     
     const options: RequestInit = {
-      method: 'POST',
-      headers: header,
+        method: 'POST',
+        headers: header,
     };
   
     // Check-in the user
@@ -32,7 +32,7 @@ export async function genshinCheckin(user: User): Promise<string> {
         const hoyolabResponse: Response = await fetch(url, options);
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
-
+        
         const response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
         
         return response;
