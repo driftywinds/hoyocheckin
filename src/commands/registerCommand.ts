@@ -21,6 +21,10 @@ export async function register(interaction: CommandInteraction, client: Client){
         cookieCollector.on('collect', async (message) => {
             const cookie = message.content.trim();
 
+            if(cookie.includes('Cookie:')){
+                cookie.replace('Cookie:', '');
+            }
+
             if (cookie) {
 
                 // Translate the cookies into JSON
