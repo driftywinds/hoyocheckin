@@ -80,23 +80,34 @@ export function readUsersFromFile(filePath: string): User[] {
     }
 }
 
+// File functions
+
 // Function to get a user by user_id
 export function getUserById(users: User[], targetUserId: string): User | undefined {
     return users.find(user => user.user_id === targetUserId);
 }
 
-// Function to add a user to the users file
+// Set JSON file users array
 function writeUsersToFile(filePath: string, users: User[]): void {
     const jsonData = { users };
     fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
 }
 
-// Function to add a new user to the JSON file
+// Add a new user to the JSON file
 export function addNewUserToFile(filePath: string, newUser: User): void {
     const users = readUsersFromFile(filePath);
     users.push(newUser);
     writeUsersToFile(filePath, users);
 }
+
+// Remove a user from the JSON file
+export function removeUser(filePath: string, userToRemove: User): void {
+    const users = readUsersFromFile(filePath);
+    const updatedUsers = users.filter(user => user.user_id !== userToRemove.user_id);
+    writeUsersToFile(filePath, updatedUsers);
+}
+
+// Timing functions
 
 // Function to schedule a task at a specific time every day
 const scheduleTaskAtSpecificTime = (cronExpression: string, task: () => Promise<void>, checkInterval: number = 60 * 1000) => {

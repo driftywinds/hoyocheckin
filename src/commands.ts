@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 import { register } from './commands/registerCommand';
 import { redeemForAllUsers, redeemCode } from './commands/redeemCommands';
+import { updateAccount } from './commands/updateAccountCommand';
 
 import { readUsersFromFile, getUserById, User } from './bot';
 
@@ -58,6 +59,10 @@ export const commands = [
                 description: 'The redeem code',
                 required: true,
             },
+            {
+                name: 'update_account',
+                description: 'Update your registered account with up-to-date cookies.',
+            },
         ],
     },
 ];
@@ -85,6 +90,7 @@ export const handleCommands = (client: Client) => {
             // register command
             case 'register':
                 register(interaction, client);
+                
                 
                 break;
             
@@ -140,7 +146,18 @@ export const handleCommands = (client: Client) => {
 
                 break;
 
+            case 'update_account':
+                // Get User object from userData
+                const users: User[] = readUsersFromFile('./userData.json');
+                const userToUpdate: User | undefined = getUserById(users, interaction.user.id);
 
+                if(userToUpdate){
+                    updateAccount(userToUpdate, interaction, client);
+                }else{
+                    interaction.reply('Could not find profile with your Discord ID.');
+                }
+
+            
             default:
                 console.error(`Unknown command ${interaction.commandName}`);
         }
