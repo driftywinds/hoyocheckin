@@ -46,15 +46,16 @@ if(!TOKEN || !CLIENT_ID){
 // When ready
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
-    
+
+    console.log(getTime());
     // Register slash commands
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
 
-    const cronExpression = '25 20 * * *'; // 12:07 PM
+    const cronExpression = '7 12 * * *'; // 12:07 PM
     const intervalId = scheduleTaskAtSpecificTime(cronExpression, async () => {
         console.log('Checking all users in');
-       await checkinAllUsers();
+        await checkinAllUsers();
     });
 
 
@@ -130,6 +131,25 @@ const scheduleTaskAtSpecificTime = (cronExpression: string, task: () => Promise<
     // Return the interval ID in case you want to stop it later
     return intervalId;
 };
+
+function getTime(): string {
+    const timestamp = Date.now(); // Get the current Unix timestamp in milliseconds
+    const date = new Date(timestamp);
+
+    // Use Date methods to format the date and time components
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1 and pad with leading zeros
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    // Create a readable date-time string
+    const readableTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return readableTime;
+
+}
 
 
 client.login(TOKEN);
