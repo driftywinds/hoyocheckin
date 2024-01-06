@@ -1,4 +1,4 @@
-import { Client, Interaction ,REST, Routes } from 'discord.js';
+import { Client, Interaction ,REST, Routes, ApplicationCommandType, SlashCommandBuilder, ApplicationCommandOptionType } from 'discord.js';
 
 import dotenv from 'dotenv';
 
@@ -14,14 +14,16 @@ export const commands = [
     {
         name: 'register',
         description: 'Register here',
+        type: ApplicationCommandType.ChatInput,
     },
     {
         name: 'redeem_allusers',
         description: 'Redeem a code for all users for chosen game',
+        type: ApplicationCommandType.ChatInput,
         options: [
             {
                 name: 'game',
-                type: 3,
+                type: ApplicationCommandOptionType.String,
                 description: 'Select the game',
                 required: true,
                 choices: [
@@ -32,7 +34,7 @@ export const commands = [
             },
             {
                 name: 'code',
-                type: 3,
+                type: ApplicationCommandOptionType.String,
                 description: 'The redeem code',
                 required: true,
             },
@@ -41,10 +43,11 @@ export const commands = [
     {
         name: 'redeem',
         description: 'Redeem a code for chosen game',
+        type: ApplicationCommandType.ChatInput,
         options: [
             {
                 name: 'game',
-                type: 3,
+                type: ApplicationCommandOptionType.String,
                 description: 'Select the game',
                 required: true,
                 choices: [
@@ -55,30 +58,34 @@ export const commands = [
             },
             {
                 name: 'code',
-                type: 3,
+                type: ApplicationCommandOptionType.String,
                 description: 'The redeem code',
                 required: true,
-            },
-            {
-                name: 'update_account',
-                description: 'Update your registered account with up-to-date cookies.',
             },
         ],
     },
 ];
 
 export const registerCommands = async (clientId: string, token: string) => {
+
     const rest = new REST({ version: '10' }).setToken(token);
 
-    try {
-        console.log('Started refreshing application (/) commands.');
+    (async () => {
+        try {
+            console.log('Started refreshing application (/) commands.');
 
-        await rest.put(Routes.applicationCommands(clientId), { body: commands });
+            await rest.put(
+            Routes.applicationCommands(clientId),
+            { body: commands },
+            );
 
-        console.log('Successfully reloaded application (/) commands.');
-    } catch (error) {
-        console.error(error);
-    }
+            console.log('Successfully reloaded application (/) commands.');
+        } catch (error) {
+            console.error(error);
+        }
+    })();
+
+    console.log('commands');
 };
 
 export const handleCommands = (client: Client) => {
