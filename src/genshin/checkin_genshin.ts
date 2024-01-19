@@ -8,6 +8,7 @@ export async function genshinCheckin(user: User): Promise<string> {
 
     if (!url) {
         return `Check-in skipped for ${username}: Genshin Impact check-in is disabled.`;
+        
     }
 
     const header = {

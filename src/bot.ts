@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
-import { parseExpression } from 'cron-parser';
+import cron from 'node-cron';
 
 import * as fs from 'fs';
 
@@ -52,14 +52,10 @@ client.on('ready', async () => {
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
 
-    const cronExpression = '7 12 * * *'; // 12:07 PM
-    const intervalId = scheduleTaskAtSpecificTime(cronExpression, async () => {
-        console.log('Checking all users in');
-        await checkinAllUsers();
-    });
+    await scheduleDailyTask(12, 7);
 
 
-
+    console.log('bottom');
 });
 
 // Function to read and parse the JSON file
@@ -111,26 +107,17 @@ export function removeUser(filePath: string, userToRemove: User): void {
 // Timing functions
 
 // Function to schedule a task at a specific time every day
-const scheduleTaskAtSpecificTime = (cronExpression: string, task: () => Promise<void>, checkInterval: number = 60 * 1000) => {
-    const interval = parseExpression(cronExpression);
+async function scheduleDailyTask(hour: number, minute: number) {
+    const time = `${minute} ${hour} * * *`; // Cron format for scheduling
 
-    const runTask = async () => {
-        console.log('Running scheduled task');
-        await task();
-    };
-
-    const intervalId = setInterval(async () => {
-        const currentTime = Date.now();
-        const nextScheduledTime = interval.next().getTime();
-
-        if (currentTime >= nextScheduledTime) {
-            await runTask();
-        }
-    }, checkInterval);
-
-    // Return the interval ID in case you want to stop it later
-    return intervalId;
-};
+    cron.schedule(time, async () => {
+        console.log(`Task running at ${hour}:${minute}`);
+        await checkinAllUsers();
+    }, {
+        scheduled: true,
+        timezone: "America/New_York" 
+    });
+}
 
 function getTime(): string {
     const timestamp = Date.now(); // Get the current Unix timestamp in milliseconds
@@ -153,3 +140,7 @@ function getTime(): string {
 
 
 client.login(TOKEN);
+
+// to shut down do 
+// ps aux
+// then kill the node process

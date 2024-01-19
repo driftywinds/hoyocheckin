@@ -7,6 +7,7 @@ import { redeemForAllUsers, redeemCode } from './commands/redeemCommands';
 import { updateAccount } from './commands/updateAccountCommand';
 
 import { readUsersFromFile, getUserById, User } from './bot';
+import { checkinAllUsers } from './hoyolab/checkinAllUsers';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ export const commands = [
     },
     {
         name: 'redeem_allusers',
-        description: 'Redeem a code for all users for chosen game',
+        description: 'Redeem a code for all users for chosen game. ADMIN ONLY',
         type: ApplicationCommandType.ChatInput,
         options: [
             {
@@ -64,6 +65,16 @@ export const commands = [
             },
         ],
     },
+    {
+        name: 'checkin_all',
+        description: 'Check in all users. ADMIN ONLY',
+        type: ApplicationCommandType.ChatInput,
+    },
+    {
+        name: 'ping',
+        description: 'Replies with Pong!',
+        type: ApplicationCommandType.ChatInput,
+    }
 ];
 
 export const registerCommands = async (clientId: string, token: string) => {
@@ -75,8 +86,8 @@ export const registerCommands = async (clientId: string, token: string) => {
             console.log('Started refreshing application (/) commands.');
 
             await rest.put(
-            Routes.applicationCommands(clientId),
-            { body: commands },
+                Routes.applicationCommands(clientId),
+                { body: commands },
             );
 
             console.log('Successfully reloaded application (/) commands.');
@@ -84,8 +95,6 @@ export const registerCommands = async (clientId: string, token: string) => {
             console.error(error);
         }
     })();
-
-    console.log('commands');
 };
 
 export const handleCommands = (client: Client) => {
@@ -163,7 +172,24 @@ export const handleCommands = (client: Client) => {
                 }else{
                     interaction.reply('Could not find profile with your Discord ID.');
                 }
+            
+            case 'checkin_all':
 
+                // Check if user is bot admin
+                if(interaction.user.id !== process.env.BOT_ADMIN_ID){
+                    interaction.reply('You do not have permission to use this command.');
+                    break;
+                }
+
+                await checkinAllUsers();
+                interaction.reply('All users checked in');
+
+                break;
+            
+            case 'ping':
+                interaction.reply('Pong!');
+
+                break;
             
             default:
                 console.error(`Unknown command ${interaction.commandName}`);
