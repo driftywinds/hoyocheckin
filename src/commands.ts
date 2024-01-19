@@ -182,7 +182,7 @@ export const handleCommands = (client: Client) => {
                 }
 
                 await checkinAllUsers();
-                interaction.reply('All users checked in');
+                //interaction.reply('All users checked in');
 
                 break;
             

@@ -27,6 +27,9 @@ export async function redeemGenshinCode(user: User, code: string): Promise<strin
 
         for(const uid of uids){
 
+            console.log(`USER: ${user.username}`);
+            console.log(`COOKIES: ${user_cookies}`);
+
             const url = `https://sg-hk4e-api.hoyoverse.com/common/apicdkey/api/webExchangeCdkey?uid=${uid.gameUid}&region=${uid.region}&lang=en&cdkey=${code}&game_biz=hk4e_global&sLangKey=en-us`;
             console.log(`Redeeming ${code} for ${user.username} for region ${uid.region}`);
             const hoyolabResponse: Response = await fetch(url, options);
