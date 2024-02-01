@@ -1,8 +1,8 @@
-import { CommandInteraction, Client } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import { User, addNewUserToFile } from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 
-export async function register(interaction: CommandInteraction, client: Client){
+export async function register(interaction: CommandInteraction){
     try {
 
         await interaction.reply("Please check your DM's for further instruction.");

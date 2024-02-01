@@ -1,4 +1,4 @@
-import { Client, Interaction ,REST, Routes, ApplicationCommandType, SlashCommandBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Client, Interaction ,REST, Routes, ApplicationCommandType, ApplicationCommandOptionType } from 'discord.js';
 
 import dotenv from 'dotenv';
 
@@ -101,17 +101,19 @@ export const handleCommands = (client: Client) => {
     client.on('interactionCreate', async (interaction: Interaction) => {
         if (!interaction.isChatInputCommand()) return;
 
+        console.log(`Received command ${interaction.commandName} from ${interaction.user.tag}`);
+
         switch (interaction.commandName) {
 
             // register command
-            case 'register':
-                register(interaction, client);
-                
-                
+            case 'register': {
+                register(interaction);
+                   
                 break;
+            }
             
             // redeem for all users command
-            case 'redeem_allusers':
+            case 'redeem_allusers': {
 
                 // Check if user is bot admin
                 if(interaction.user.id !== process.env.BOT_ADMIN_ID){
@@ -133,9 +135,10 @@ export const handleCommands = (client: Client) => {
                 }
 
                 break;
+            }
             
             // redeem code for user command
-            case 'redeem':
+            case 'redeem': {
 
                 // Collect paramaters
                 const game_user = interaction.options.getString('game', true);
@@ -161,19 +164,23 @@ export const handleCommands = (client: Client) => {
                 }
 
                 break;
+            }
 
-            case 'update_account':
+            case 'update_account': {
                 // Get User object from userData
                 const users: User[] = readUsersFromFile('./userData.json');
                 const userToUpdate: User | undefined = getUserById(users, interaction.user.id);
 
                 if(userToUpdate){
-                    updateAccount(userToUpdate, interaction, client);
+                    updateAccount(userToUpdate, interaction);
                 }else{
                     interaction.reply('Could not find profile with your Discord ID.');
                 }
+
+                break;
+            }
             
-            case 'checkin_all':
+            case 'checkin_all':{
 
                 // Check if user is bot admin
                 if(interaction.user.id !== process.env.BOT_ADMIN_ID){
@@ -185,11 +192,13 @@ export const handleCommands = (client: Client) => {
                 //interaction.reply('All users checked in');
 
                 break;
+            }
             
-            case 'ping':
+            case 'ping':{
                 interaction.reply('Pong!');
 
                 break;
+            }
             
             default:
                 console.error(`Unknown command ${interaction.commandName}`);

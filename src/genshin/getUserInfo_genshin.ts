@@ -1,4 +1,4 @@
-import { CommandInteraction, DMChannel } from "discord.js";
+import { DMChannel } from "discord.js";
 import { UID } from "../bot";
 
 export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {

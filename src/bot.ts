@@ -4,7 +4,7 @@ import cron from 'node-cron';
 
 import * as fs from 'fs';
 
-import { commands, handleCommands, registerCommands } from './commands';
+import { handleCommands, registerCommands } from './commands';
 import { checkinAllUsers } from './hoyolab/checkinAllUsers';
 
 dotenv.config();
@@ -13,7 +13,7 @@ dotenv.config();
 export interface UID {
     region: string;
     region_name: string;
-    gameUid: any;
+    gameUid: number;
     nickname: string;
     level: number;
 }
@@ -54,19 +54,17 @@ client.on('ready', async () => {
 
     await scheduleDailyTask(12, 7);
 
-
-    console.log('bottom');
 });
+// File functions
 
 // Function to read and parse the JSON file
 export function readUsersFromFile(filePath: string): User[] {
     try {
         const fileContent: string = fs.readFileSync(filePath, 'utf8');
-        const jsonData: any = JSON.parse(fileContent);
+        const jsonData: User[] = JSON.parse(fileContent);
 
-        if (Array.isArray(jsonData.users)) {
-            // Assuming the array of users is stored in a property called "users"
-            return jsonData.users;
+        if (Array.isArray(jsonData)) {
+            return jsonData;
         } else {
             console.error('Invalid JSON structure. Expected property "users" to be an array.');
             return [];
@@ -76,8 +74,6 @@ export function readUsersFromFile(filePath: string): User[] {
         return [];
     }
 }
-
-// File functions
 
 // Function to get a user by user_id
 export function getUserById(users: User[], targetUserId: string): User | undefined {
