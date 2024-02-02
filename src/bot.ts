@@ -21,11 +21,12 @@ export interface UID {
 // Create user object
 export interface User{
     username: string;
-    user_id: string;
+    discord_id: string;
     genshin: UID[];
-    h_star_rail: UID[];
-    h_impact: UID[];
+    hk_str: UID[];
+    hk_imp: UID[];
     pasted_cookie: Record<string, string>;
+    raw_cookie: string;
 }
 
 // Create client object and list intents
@@ -61,7 +62,7 @@ client.on('ready', async () => {
 export function readUsersFromFile(filePath: string): User[] {
     try {
         const fileContent: string = fs.readFileSync(filePath, 'utf8');
-        const jsonData: User[] = JSON.parse(fileContent);
+        const jsonData: User[] = JSON.parse(fileContent).users;
 
         if (Array.isArray(jsonData)) {
             return jsonData;
@@ -77,7 +78,7 @@ export function readUsersFromFile(filePath: string): User[] {
 
 // Function to get a user by user_id
 export function getUserById(users: User[], targetUserId: string): User | undefined {
-    return users.find(user => user.user_id === targetUserId);
+    return users.find(user => user.discord_id === targetUserId);
 }
 
 // Set JSON file users array
@@ -96,7 +97,7 @@ export function addNewUserToFile(filePath: string, newUser: User): void {
 // Remove a user from the JSON file
 export function removeUser(filePath: string, userToRemove: User): void {
     const users = readUsersFromFile(filePath);
-    const updatedUsers = users.filter(user => user.user_id !== userToRemove.user_id);
+    const updatedUsers = users.filter(user => user.discord_id !== userToRemove.discord_id);
     writeUsersToFile(filePath, updatedUsers);
 }
 

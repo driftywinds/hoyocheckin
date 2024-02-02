@@ -18,7 +18,7 @@ export async function redeemCode(game: string, code: string, user: User): Promis
                 const response = await redeemFunction(user, code);
                 return response || 'Error redeeming code';
             } catch (error) {
-                console.error(`Error redeeming code ${code} for user ${user.user_id}: ${error}`);
+                console.error(`Error redeeming code ${code} for user ${user.discord_id}: ${error}`);
                 return 'Error redeeming code';
             }
         } else {
@@ -39,7 +39,7 @@ export async function redeemForAllUsers(game: string, code: string): Promise<voi
                 try {
                     await redeemFunction(user, code);
                 } catch (error) {
-                    console.error(`Error redeeming code ${code} for user ${user.user_id}: ${error}`);
+                    console.error(`Error redeeming code ${code} for user ${user.discord_id}: ${error}`);
                 }
             }
         } else {

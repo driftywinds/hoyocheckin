@@ -1,6 +1,7 @@
 import { CommandInteraction } from 'discord.js';
 import { User, addNewUserToFile } from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
+import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
 
 export async function register(interaction: CommandInteraction){
     try {
@@ -35,18 +36,23 @@ export async function register(interaction: CommandInteraction){
                     cookieJSON[key] = value;
                 });
 
+                console.log('--Fetching Genshin Impact Data');
                 const genshinUIDs = await getUserGenshinInfo(cookie, dmChannel);
+
+                console.log('--Fetching Honkai Starrail Data')
+                const hkstrUIDs = await getUserStarrailInfo(cookie, dmChannel);
 
                 const newUser: User = {
                     'username': interaction.user.username,
-                    'user_id': interaction.user.id,
+                    'discord_id': interaction.user.id,
                     'genshin': genshinUIDs,
-                    'h_star_rail': [],
-                    'h_impact': [],
-                    'pasted_cookie': cookieJSON
+                    'hk_str': hkstrUIDs,
+                    'hk_imp': [],
+                    'pasted_cookie': cookieJSON,
+                    'raw_cookie': cookie
                 };     
 
-                if(newUser.genshin.length == 0 && newUser.h_star_rail.length == 0 && newUser.h_impact.length == 0){
+                if(newUser.genshin.length == 0 && newUser.hk_str.length == 0 && newUser.hk_imp.length == 0){
                     dmChannel.send('No accounts were found with the provided cookies. Please try again.');
                 }else{
                     dmChannel.send('Registration complete! The following accounts have been saved to your profile.');

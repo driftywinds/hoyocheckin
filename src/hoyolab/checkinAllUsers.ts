@@ -2,6 +2,7 @@ import { User } from '../bot';
 import * as fs from 'fs';
 
 import { genshinCheckin } from '../genshin/checkin_genshin';
+import { hkstrCheckin } from '../hk_starrail/checkin_hkstr';
 
 export async function checkinAllUsers() {
     try {
@@ -14,10 +15,16 @@ export async function checkinAllUsers() {
         // For every user, use their tokes to sign them in
         for(const user of userData){
 
-            const result = await genshinCheckin(user);
+            console.log(`--Checking in user: ${user.username}--`);
 
-            // Print the result
-            console.log(result);
+            console.log('--Genshin Impact--');
+            const genshinResult = await genshinCheckin(user);
+            console.log(genshinResult);
+
+            console.log('--Honkai Starrail--');
+            const hkstrResult = await hkstrCheckin(user);
+            console.log(hkstrResult);
+
         }
     } catch(error){
         console.error('Error reading or parsing userData.json:', error);
