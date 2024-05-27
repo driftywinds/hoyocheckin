@@ -2,7 +2,6 @@ import { CommandInteraction, DMChannel } from 'discord.js';
 import { User, addNewUserToFile } from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
-import { resolve } from 'path';
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
     await dmChannel.send('---------------\n**Please enter your desired nickname**\n');
