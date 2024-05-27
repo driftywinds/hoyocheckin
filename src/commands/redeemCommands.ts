@@ -1,3 +1,5 @@
+// DEPRECATED UNTIL FURTHER NOTICE - the cookie required to redeem codes is short lived and expires after a few hours. No feasible way to automate this process.
+
 import { User, readUsersFromFile } from "../bot";
 import { redeemGenshinCode } from "../genshin/redeem_genshin";
 

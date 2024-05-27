@@ -15,7 +15,7 @@ export async function checkinAllUsers() {
         // For every user, use their tokes to sign them in
         for(const user of userData){
 
-            console.log(`--Checking in user: ${user.username}--`);
+            console.log(`--Checking in user: ${user.nickname}--`);
 
             console.log('--Genshin Impact--');
             const genshinResult = await genshinCheckin(user);
@@ -24,6 +24,7 @@ export async function checkinAllUsers() {
             console.log('--Honkai Starrail--');
             const hkstrResult = await hkstrCheckin(user);
             console.log(hkstrResult);
+            console.log('\n');
 
         }
     } catch(error){

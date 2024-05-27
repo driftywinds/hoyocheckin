@@ -20,6 +20,7 @@ export interface UID {
 
 // Create user object
 export interface User{
+    nickname: string;
     username: string;
     discord_id: string;
     genshin: UID[];
