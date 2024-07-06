@@ -3,6 +3,7 @@ import * as fs from 'fs';
 
 import { genshinCheckin } from '../genshin/checkin_genshin';
 import { hkstrCheckin } from '../hk_starrail/checkin_hkstr';
+import { zzzCheckin } from '../zenless_zone_zero/checkin_zenless';
 
 export async function checkinAllUsers() {
     try {
@@ -12,7 +13,6 @@ export async function checkinAllUsers() {
         const jsonData = JSON.parse(fileContent);
         const userData: User[] = jsonData.users;
 
-        // For every user, use their tokes to sign them in
         for(const user of userData){
 
             console.log(`--Checking in user: ${user.nickname}--`);
@@ -24,6 +24,11 @@ export async function checkinAllUsers() {
             console.log('--Honkai Starrail--');
             const hkstrResult = await hkstrCheckin(user);
             console.log(hkstrResult);
+            console.log('\n');
+
+            console.log('--Zenless Zone Zero--');
+            const zzzResult = await zzzCheckin(user);
+            console.log(zzzResult);
             console.log('\n');
 
         }

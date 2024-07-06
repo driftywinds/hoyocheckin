@@ -2,6 +2,7 @@ import { CommandInteraction, DMChannel } from 'discord.js';
 import { User, addNewUserToFile } from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
+import { getUserZenlessInfo } from '../zenless_zone_zero/getUserInfo_zenless'
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
     await dmChannel.send('---------------\n**Please enter your desired nickname**\n');
@@ -89,6 +90,10 @@ export async function register(interaction: CommandInteraction){
         // Fetch their Honkai Starrail data
         console.log('--Fetching Honkai Starrail Data')
         const hkstrUIDs = await getUserStarrailInfo(cookie, dmChannel);
+
+        // Fetch their Zenless Zone Zero data
+        console.log('--Fetching Honkai Starrail Data')
+        const zenlessUIDs = await getUserZenlessInfo(cookie, dmChannel);
         
         // Create the new User
         const newUser: User = {
@@ -97,6 +102,7 @@ export async function register(interaction: CommandInteraction){
             'discord_id': interaction.user.id,
             'genshin': genshinUIDs,
             'hk_str': hkstrUIDs,
+            'zzz': zenlessUIDs,
             'hk_imp': [],
             'pasted_cookie': cookieJSON,
             'raw_cookie': cookie
