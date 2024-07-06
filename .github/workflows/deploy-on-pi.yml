@@ -24,6 +24,13 @@ jobs:
       - name: Wait for Tailscale to Connect
         run: sleep 10  
 
+      - name: Write SSH Key to File
+        run: |
+          mkdir -p ~/.ssh
+          mkdir -p ~/.ssh/id_rsa
+          echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Deploy bot with Docker
         run: |
           ssh -i ~/.ssh/id_rsa root@${{ secrets.PI_TAILSCALE_IP }} 'cd /home/bots/Dailycheckin_Bot && git pull origin main && docker-compose down && docker-compose up -d --build'
