@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy bot with Docker
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.PI_TAILSCALE_IP }} 'cd /home/bots/Dailycheckin_Bot && git pull origin main && docker-compose down && docker-compose up -d --build'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.PI_TAILSCALE_IP }} 'cd /home/bots/Dailycheckin_Bot && git pull origin main && docker compose down && docker compose up -d --build'
