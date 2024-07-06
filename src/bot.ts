@@ -56,6 +56,8 @@ client.on('ready', async () => {
 
     await scheduleDailyTask(12, 7);
 
+    console.log('Bot is ready')
+
 });
 // File functions
 
