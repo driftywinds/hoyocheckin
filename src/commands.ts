@@ -1,4 +1,4 @@
-import { Client, Interaction ,REST, Routes, ApplicationCommandType, ApplicationCommandOptionType } from 'discord.js';
+import { Client, Interaction ,REST, Routes, ApplicationCommandType } from 'discord.js';
 
 import dotenv from 'dotenv';
 

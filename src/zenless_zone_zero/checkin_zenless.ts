@@ -4,7 +4,7 @@ export async function zzzCheckin(profile: Profile): Promise<string> {
 
     const url = 'https://sg-act-nap-api.hoyolab.com/event/luna/zzz/os/sign?lang=en-us&act_id=e202406031448091';
     const username = profile.nickname;
-    const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';';
+    const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
         return `Check-in skipped for ${username}: Zenless Zone Zero check-in is disabled.`;
