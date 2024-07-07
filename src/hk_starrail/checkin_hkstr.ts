@@ -1,10 +1,10 @@
-import { User } from "../bot";
+import {Profile} from "../bot";
 
-export async function hkstrCheckin(user: User): Promise<string> {
+export async function hkstrCheckin(profile: Profile): Promise<string> {
     
     const url = 'https://sg-public-api.hoyolab.com/event/luna/os/sign?act_id=e202303301540311';
-    const username = user.username;
-    const cookies = 'ltoken_v2='+user.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+user.pasted_cookie.ltuid_v2+';';
+    const username = profile.nickname;
+    const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
         return `Check-in skipped for ${username}: Honkai Starrail check-in is disabled.`;
@@ -27,15 +27,13 @@ export async function hkstrCheckin(user: User): Promise<string> {
         headers: header,
     };
   
-    // Check-in the user
+    // Check-in the profile
     try {
         const hoyolabResponse: Response = await fetch(url, options);
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
-        
-        const response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
-        
-        return response;
+
+        return `Check-in completed for ${username}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         console.error('Error during fetch:', error);
         return `Error during fetch for ${username}: `;

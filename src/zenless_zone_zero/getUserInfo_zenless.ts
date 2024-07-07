@@ -3,10 +3,10 @@ import { UID } from "../bot";
 
 export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [
-        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_usa&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_euro&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_asia&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_cht&game_biz=hk4e_global&sLangKey=en-us' }
+        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306647686&game_biz=nap_global&region=prod_gf_us' },
+        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306714052&game_biz=nap_global&region=prod_gf_eu' },
+        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306679420&game_biz=nap_global&region=prod_gf_jp'},
+        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306737094&game_biz=nap_global&region=prod_gf_sg' }
     ];
 
     const header = {
