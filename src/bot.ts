@@ -1,13 +1,30 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import {Client, GatewayIntentBits} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 
 import * as fs from 'fs';
 
-import { handleCommands, registerCommands } from './commands';
-import { checkinAllUsers } from './hoyolab/checkinAllUsers';
+import {handleCommands, registerCommands} from './commands';
+import {checkinAllUsers} from './hoyolab/checkinAllUsers';
 
 dotenv.config();
+
+export interface User {
+    username: string;
+    discord_id: string;
+    profiles: Profile[];
+}
+
+// Create profile object
+export interface Profile {
+    nickname: string;
+    genshin: UID[];
+    hk_str: UID[];
+    hk_imp: UID[];
+    zzz: UID[];
+    pasted_cookie: Record<string, string>;
+    raw_cookie: string;
+}
 
 // Create uid object for user's profiles
 export interface UID {
@@ -16,19 +33,6 @@ export interface UID {
     gameUid: number;
     nickname: string;
     level: number;
-}
-
-// Create user object
-export interface User{
-    nickname: string;
-    username: string;
-    discord_id: string;
-    genshin: UID[];
-    hk_str: UID[];
-    hk_imp: UID[];
-    zzz: UID[];
-    pasted_cookie: Record<string, string>;
-    raw_cookie: string;
 }
 
 // Create client object and list intents
@@ -60,10 +64,12 @@ client.on('ready', async () => {
     console.log('Bot is ready')
 
 });
+
 // File functions
 
 // Function to read and parse the JSON file
-export function readUsersFromFile(filePath: string): User[] {
+export function readUsersFromFile(): User[] {
+    const filePath: string = './users.json';
     try {
         const fileContent: string = fs.readFileSync(filePath, 'utf8');
         const jsonData: User[] = JSON.parse(fileContent).users;
@@ -80,36 +86,43 @@ export function readUsersFromFile(filePath: string): User[] {
     }
 }
 
-// Function to get a user by user_id
-export function getUserById(users: User[], targetUserId: string): User | undefined {
-    return users.find(user => user.discord_id === targetUserId);
+// Get user by discordID
+export function getUserByDiscordID(discordID: string): User | undefined {
+    const users: User[] = readUsersFromFile();
+    return users.find(user => user.discord_id === discordID);
+}
+
+// Get all profiles by discord ID
+export function getProfilesByDiscordID(discordID: string): Profile[] | undefined {
+    const users: User[] = readUsersFromFile();
+    return users.find(user => user.discord_id === discordID)?.profiles || [];
 }
 
 // Set JSON file users array
-function writeUsersToFile(filePath: string, users: User[]): void {
+function writeUsersToFile(users: User[]): void {
     const jsonData = { users };
-    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
+    fs.writeFileSync('./users.json', JSON.stringify(jsonData, null, 2), 'utf8');
 }
 
 // Add a new user to the JSON file
-export function addNewUserToFile(filePath: string, newUser: User): void {
-    const users = readUsersFromFile(filePath);
-    users.push(newUser);
-    writeUsersToFile(filePath, users);
-}
+export function upsertUser(newUser: User): void {
+    const users: User[] = readUsersFromFile();
+    const existingUserIndex = users.findIndex(user => user.discord_id === newUser.discord_id);
 
-// Remove a user from the JSON file
-export function removeUser(filePath: string, userToRemove: User): void {
-    const users = readUsersFromFile(filePath);
-    const updatedUsers = users.filter(user => user.discord_id !== userToRemove.discord_id);
-    writeUsersToFile(filePath, updatedUsers);
+    if (existingUserIndex > -1) {
+        users[existingUserIndex] = newUser;
+    } else {
+        users.push(newUser);
+    }
+
+    writeUsersToFile(users);
 }
 
 // Timing functions
 
 // Function to schedule a task at a specific time every day
 async function scheduleDailyTask(hour: number, minute: number) {
-    const time = `${minute} ${hour} * * *`; // Cron format for scheduling
+    const time = `${minute} ${hour} * * *`;
 
     cron.schedule(time, async () => {
         console.log(`Task running at ${hour}:${minute}`);
@@ -121,24 +134,20 @@ async function scheduleDailyTask(hour: number, minute: number) {
 }
 
 function getTime(): string {
-    const timestamp = Date.now(); // Get the current Unix timestamp in milliseconds
+    const timestamp = Date.now();
     const date = new Date(timestamp);
 
     // Use Date methods to format the date and time components
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1 and pad with leading zeros
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    // Create a readable date-time string
-    const readableTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-    return readableTime;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
 }
-
 
 client.login(TOKEN);
 

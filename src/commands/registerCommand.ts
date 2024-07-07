@@ -1,11 +1,11 @@
 import { CommandInteraction, DMChannel } from 'discord.js';
-import { User, addNewUserToFile } from '../bot';
+import {Profile, upsertUser, getProfilesByDiscordID, UID, getUserByDiscordID, User} from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
 import { getUserZenlessInfo } from '../zenless_zone_zero/getUserInfo_zenless'
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
-    await dmChannel.send('---------------\n**Please enter your desired nickname**\n');
+    await dmChannel.send('---------------\n**Please enter the nickname of the profile you would like to create/update.**\n');
     return new Promise((resolve) => {
         const nicknameCollector = dmChannel.createMessageCollector({ max: 1, time: 300000 });
 
@@ -56,7 +56,6 @@ async function collectCookie(dmChannel: DMChannel): Promise<string | null> {
     });
 }
 
-
 export async function register(interaction: CommandInteraction){
     try {
         await interaction.reply("Please check your DM's for further instruction.");
@@ -67,6 +66,39 @@ export async function register(interaction: CommandInteraction){
         await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
 
         // Start the data collection
+
+        // Check if the user already has an account
+        const existingUser: User | undefined = getUserByDiscordID(interaction.user.id);
+        const profiles: Profile[] | undefined = getProfilesByDiscordID(interaction.user.id);
+
+        if(existingUser){
+            dmChannel.send('Welcome back! Here are your current profiles:');
+            if(!profiles) return;
+
+            // Display each profile the user has
+            profiles.forEach(profile => {
+                dmChannel.send(`-------**${profile.nickname}**-------`);
+
+                if(profile.genshin.length > 0){
+                    dmChannel.send('**Genshin Impact**');
+                    profile.genshin.forEach(uid => {
+                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                    });
+                }
+                if(profile.hk_str.length > 0){
+                    dmChannel.send('**Honkai Starrail**');
+                    profile.hk_str.forEach(uid => {
+                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                    });
+                }
+                if(profile.zzz.length > 0){
+                    dmChannel.send('**Zenless Zone Zero**');
+                    profile.zzz.forEach(uid => {
+                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                    });
+                }
+            });
+        }
 
         // Collect nickname
         const nickname: string | null = await collectNickname(dmChannel);
@@ -85,21 +117,19 @@ export async function register(interaction: CommandInteraction){
 
         // Fetch their Genshin Impact data
         console.log('--Fetching Genshin Impact Data');
-        const genshinUIDs = await getUserGenshinInfo(cookie, dmChannel);
+        const genshinUIDs: UID[] = await getUserGenshinInfo(cookie, dmChannel);
 
         // Fetch their Honkai Starrail data
         console.log('--Fetching Honkai Starrail Data')
-        const hkstrUIDs = await getUserStarrailInfo(cookie, dmChannel);
+        const hkstrUIDs: UID[] = await getUserStarrailInfo(cookie, dmChannel);
 
         // Fetch their Zenless Zone Zero data
-        console.log('--Fetching Honkai Starrail Data')
-        const zenlessUIDs = await getUserZenlessInfo(cookie, dmChannel);
-        
+        console.log('--Fetching Zenless Zone Zero Data')
+        const zenlessUIDs: UID[] = await getUserZenlessInfo(cookie, dmChannel);
+
         // Create the new User
-        const newUser: User = {
+        const newProfile: Profile = {
             'nickname': nickname,
-            'username': interaction.user.username,
-            'discord_id': interaction.user.id,
             'genshin': genshinUIDs,
             'hk_str': hkstrUIDs,
             'zzz': zenlessUIDs,
@@ -108,15 +138,36 @@ export async function register(interaction: CommandInteraction){
             'raw_cookie': cookie
         };
 
-        if (newUser.genshin.length == 0 && newUser.hk_str.length == 0 && newUser.hk_imp.length == 0) {
+        if (newProfile.genshin.length == 0 && newProfile.hk_str.length == 0 && newProfile.zzz.length == 0) {
             dmChannel.send('No accounts were found with the provided cookies. Please try again.');
         } else {
-            dmChannel.send('Registration complete! The following accounts have been saved to your profile.');
-            addNewUserToFile('userData.json', newUser);
+
+            // If the user has an account, update it. Otherwise, create a new one.
+            if(existingUser){
+
+                // If the profile nickname exists, update it. Otherwise, add it.
+                const existingProfileIndex: number = existingUser.profiles.findIndex(profile => profile.nickname.toLowerCase() === nickname.toLowerCase());
+                if(existingProfileIndex > -1){
+                    existingUser.profiles[existingProfileIndex] = newProfile;
+                }else{
+                    existingUser.profiles.push(newProfile);
+                }
+
+                upsertUser(existingUser);
+            }else{
+                const newUser: User = {
+                    'username': interaction.user.username,
+                    'discord_id': interaction.user.id,
+                    'profiles': [newProfile]
+                }
+                upsertUser(newUser);
+            }
+
+            dmChannel.send('Registration complete! Your profile has been saved!');
         }
 
     } catch (error) {
         console.error('Error sending DM:', error);
-        interaction.reply('An error occurred while sending a direct message. Please make sure your DMs are open.');
+        await interaction.reply('An error occurred while sending a direct message. Please make sure your DMs are open.');
     }
 }

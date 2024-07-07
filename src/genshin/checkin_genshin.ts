@@ -1,13 +1,13 @@
-import { User } from "../bot";
+import {Profile} from "../bot";
 
-export async function genshinCheckin(user: User): Promise<string> {
+export async function genshinCheckin(profile: Profile): Promise<string> {
     
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
-    const username = user.username;
-    const cookies = 'ltoken_v2='+user.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+user.pasted_cookie.ltuid_v2+';';
+    const nickname = profile.nickname;
+    const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
-        return `Check-in skipped for ${username}: Genshin Impact check-in is disabled.`;
+        return `Check-in skipped for ${nickname}: Genshin Impact check-in is disabled.`;
         
     }
 
@@ -28,17 +28,15 @@ export async function genshinCheckin(user: User): Promise<string> {
         headers: header,
     };
   
-    // Check-in the user
+    // Check-in the profile
     try {
         const hoyolabResponse: Response = await fetch(url, options);
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
-        
-        const response:string = `Check-in completed for ${username}`+`\n${checkInResult}`+'\n';
-        
-        return response;
+
+        return `Check-in completed for ${nickname}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         console.error('Error during fetch:', error);
-        return `Error during fetch for ${username}: `;
+        return `Error during fetch for ${nickname}: `;
     }
 }
