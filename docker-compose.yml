@@ -2,10 +2,13 @@ version: '3'
 services:
   hoyolab_bot:
     container_name: hoyolab_bot
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
       - .env
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
       - /home/bots/Dailycheckin_Bot:/app/data
+    command: sh -c "npm install && npm run build && node dist/bot.js"
