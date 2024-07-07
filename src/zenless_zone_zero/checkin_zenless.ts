@@ -24,7 +24,7 @@ export async function zzzCheckin(profile: Profile): Promise<string> {
     };
 
     const options: RequestInit = {
-        method: 'POST',
+        method: 'GET',
         headers: header,
     };
 
