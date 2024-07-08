@@ -17,21 +17,24 @@ export async function checkinAllUsers() {
             for(const profile of user.profiles){
                 console.log(`--Checking in profile: ${profile.nickname}--`);
 
-                console.log('Checking in Genshin Impact');
-                const genshinResult = await genshinCheckin(profile);
-                console.log(genshinResult);
+                if(profile.genshin.length > 0){
+                    console.log('Checking in Genshin Impact');
+                    const genshinResult: string = await genshinCheckin(profile);
+                    console.log(genshinResult);
+                }
 
-                console.log('Checking in Honkai Starrail');
-                const hkstrResult = await hkstrCheckin(profile);
-                console.log(hkstrResult);
+                if(profile.hk_str.length > 0){
+                    console.log('Checking in Honkai Starrail');
+                    const hkstrResult: string = await hkstrCheckin(profile);
+                    console.log(hkstrResult);
+                }
 
-                console.log('Checking in Zenless Zone Zero');
-                const zzzResult = await zzzCheckin(profile);
-                console.log(zzzResult);
-                console.log('\n');
+                if(profile.zzz.length > 0){
+                    console.log('Checking in Zenless Zone Zero');
+                    const zzzResult: string = await zzzCheckin(profile);
+                    console.log(zzzResult);
+                }
             }
-
-            console.log('\n');
         }
     } catch(error){
         console.error('Error reading or parsing userData.json:', error);

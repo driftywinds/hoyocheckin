@@ -85,26 +85,30 @@ export async function register(interaction: CommandInteraction) {
 
             // Display each profile the user has
             profiles.forEach(profile => {
-                dmChannel.send(`-------**${profile.nickname}**-------`);
+
+                const response: string = "";
+
+                response.concat(`-------**${profile.nickname}**-------\n`);
 
                 if (profile.genshin.length > 0) {
-                    dmChannel.send('**Genshin Impact**');
+                    response.concat('**Genshin Impact**\n');
                     profile.genshin.forEach(uid => {
-                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
                     });
                 }
                 if (profile.hk_str.length > 0) {
-                    dmChannel.send('**Honkai Starrail**');
+                    response.concat('**Honkai Starrail**\n');
                     profile.hk_str.forEach(uid => {
-                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
                     });
                 }
                 if (profile.zzz.length > 0) {
-                    dmChannel.send('**Zenless Zone Zero**');
+                    response.concat('**Zenless Zone Zero**\n');
                     profile.zzz.forEach(uid => {
-                        dmChannel.send(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}`);
+                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
                     });
                 }
+                dmChannel.send(response);
             });
         }
 
@@ -146,8 +150,9 @@ export async function register(interaction: CommandInteraction) {
             'raw_cookie': cookie
         };
 
+        const completeResponse: string = "";
         if (newProfile.genshin.length == 0 && newProfile.hk_str.length == 0 && newProfile.zzz.length == 0) {
-            dmChannel.send('No accounts were found with the provided cookies. Please try again.');
+            completeResponse.concat('No accounts were found with the provided cookies. Please try again.');
         } else {
             // If the user has an account, update it. Otherwise, create a new one.
             if (existingUser) {
@@ -169,8 +174,13 @@ export async function register(interaction: CommandInteraction) {
                 upsertUser(newUser);
             }
 
-            dmChannel.send('Registration complete! Your profile has been saved!');
+            completeResponse.concat("Registration complete! Your profile has been saved!\n");
+            completeResponse.concat("Your profile is enrolled to check-in everyday at `12:07PM EST`.\n");
+            completeResponse.concat("You can also manually check-in using the `/checkin` command.\n");
+
+
         }
+        dmChannel.send(completeResponse);
 
     } catch (error) {
         console.error('Error during registration process:', error);

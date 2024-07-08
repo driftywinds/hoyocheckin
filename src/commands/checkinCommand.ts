@@ -6,7 +6,7 @@ export async function checkinCommand(interaction: CommandInteraction){
 
     const user: User | undefined = getUserByDiscordID(interaction.user.id);
     if(!user){
-        await interaction.reply('User not found. Please register first using /register');
+        await interaction.reply({content:'User not found. Please register first using /register', ephemeral: true});
         return;
     }
 
@@ -30,6 +30,6 @@ export async function checkinCommand(interaction: CommandInteraction){
         }
     }
     response.concat('Check-in completed.')
-    await interaction.reply(response);
+    await interaction.reply({content: response, ephemeral: true});
 
 }
