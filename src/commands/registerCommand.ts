@@ -58,19 +58,19 @@ async function collectCookie(dmChannel: DMChannel): Promise<string | null> {
 
 export async function register(interaction: CommandInteraction) {
     try {
-        await interaction.reply({content: "Please check your DM's for further instruction.", ephemeral: true});
-
         // Create dmChannel and send instructions
         let dmChannel: DMChannel;
         try {
             dmChannel = await interaction.user.createDM();
-            await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
+            await interaction.reply({content: "Please check your DM's for further instruction.", ephemeral: true});
 
         } catch (err) {
-            console.error('Error creating DM:', err);
-            await interaction.followUp('I was unable to send you a direct message. Please ensure your DMs are open and try again.');
+            console.error('Error creating DM Channel:', err);
+            await interaction.reply('I was unable to send you a direct message. Please ensure your DMs are open and try again.');
             return;
         }
+
+        await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
 
         // Start the data collection
 
@@ -173,7 +173,6 @@ export async function register(interaction: CommandInteraction) {
 
     } catch (error) {
         console.error('Error during registration process:', error);
-        await interaction.followUp({content: 'An error occurred during the registration process. Please make sure your DMs are open.', ephemeral: true});
-
+        //await interaction.followUp({content: 'An error occurred during the registration process. Please make sure your DMs are open.', ephemeral: true});
     }
 }
