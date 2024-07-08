@@ -1,6 +1,8 @@
 import { CommandInteraction } from "discord.js";
 import { getUserByDiscordID, User, Profile } from "../bot";
 import { genshinCheckin } from "../genshin/checkin_genshin";
+import {hkstrCheckin} from "../hk_starrail/checkin_hkstr";
+import {zzzCheckin} from "../zenless_zone_zero/checkin_zenless";
 
 export async function checkinCommand(interaction: CommandInteraction) {
     try {
@@ -24,11 +26,11 @@ export async function checkinCommand(interaction: CommandInteraction) {
             }
             if (profile.hk_str.length > 0) {
                 response += `Checking in for Honkai Starrail...\n`;
-                response += await genshinCheckin(profile) + `\n`;
+                response += await hkstrCheckin(profile) + `\n`;
             }
             if (profile.zzz.length > 0) {
                 response += `Checking in for Zenless Zone Zero...\n`;
-                response += await genshinCheckin(profile) + `\n`;
+                response += await zzzCheckin(profile) + `\n`;
             }
         }
         response += 'Check-in completed.';
