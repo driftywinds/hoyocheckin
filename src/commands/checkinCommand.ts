@@ -12,24 +12,24 @@ export async function checkinCommand(interaction: CommandInteraction){
 
     const profiles: Profile[] = user.profiles;
 
-    const response: string = "";
+    let response: string = "";
     for(const profile of profiles){
-        response.concat(`Checking in for ${profile.nickname}...\n`);
+        response += `Checking in for ${profile.nickname}...\n`;
 
         if(profile.genshin.length > 0) {
-            response.concat(`Checking in for Genshin Impact...\n`);
-            response.concat(await genshinCheckin(profile)+`\n`);
+            response += `Checking in for Genshin Impact...\n`;
+            response += await genshinCheckin(profile)+`\n`;
         }
         if(profile.hk_str.length > 0) {
-            response.concat(`Checking in for Honkai Starrail...\n`);
-            response.concat(await genshinCheckin(profile)+`\n`);
+            response += `Checking in for Honkai Starrail...\n`;
+            response += await genshinCheckin(profile)+`\n`;
         }
         if(profile.zzz.length > 0) {
-            response.concat(`Checking in for Zenless Zone Zero...\n`);
-            response.concat(await genshinCheckin(profile)+`\n`);
+            response += `Checking in for Zenless Zone Zero...\n`;
+            response += await genshinCheckin(profile)+`\n`;
         }
     }
-    response.concat('Check-in completed.')
+    response += 'Check-in completed.';
     await interaction.reply({content: response, ephemeral: true});
 
 }

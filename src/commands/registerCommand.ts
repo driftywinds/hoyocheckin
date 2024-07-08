@@ -86,26 +86,26 @@ export async function register(interaction: CommandInteraction) {
             // Display each profile the user has
             profiles.forEach(profile => {
 
-                const response: string = "";
+                let response: string = "";
 
-                response.concat(`-------**${profile.nickname}**-------\n`);
+                response += `-------**${profile.nickname}**-------\n`;
 
                 if (profile.genshin.length > 0) {
-                    response.concat('**Genshin Impact**\n');
+                    response += '**Genshin Impact**\n';
                     profile.genshin.forEach(uid => {
-                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
+                        response += `Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`;
                     });
                 }
                 if (profile.hk_str.length > 0) {
-                    response.concat('**Honkai Starrail**\n');
+                    response += '**Honkai Starrail**\n';
                     profile.hk_str.forEach(uid => {
-                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
+                        response += `Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`;
                     });
                 }
                 if (profile.zzz.length > 0) {
-                    response.concat('**Zenless Zone Zero**\n');
+                    response += '**Zenless Zone Zero**\n';
                     profile.zzz.forEach(uid => {
-                        response.concat(`Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`);
+                        response += `Server: ${uid.region_name}\nNickname: ${uid.nickname}\nlvl: ${uid.level}\n`;
                     });
                 }
                 dmChannel.send(response);
@@ -150,9 +150,9 @@ export async function register(interaction: CommandInteraction) {
             'raw_cookie': cookie
         };
 
-        const completeResponse: string = "";
+        let completeResponse: string = "";
         if (newProfile.genshin.length == 0 && newProfile.hk_str.length == 0 && newProfile.zzz.length == 0) {
-            completeResponse.concat('No accounts were found with the provided cookies. Please try again.');
+            completeResponse += 'No accounts were found with the provided cookies. Please try again.';
         } else {
             // If the user has an account, update it. Otherwise, create a new one.
             if (existingUser) {
@@ -174,9 +174,9 @@ export async function register(interaction: CommandInteraction) {
                 upsertUser(newUser);
             }
 
-            completeResponse.concat("Registration complete! Your profile has been saved!\n");
-            completeResponse.concat("Your profile is enrolled to check-in everyday at `12:07PM EST`.\n");
-            completeResponse.concat("You can also manually check-in using the `/checkin` command.\n");
+            completeResponse += "Registration complete! Your profile has been saved!\n";
+            completeResponse += "Your profile is enrolled to check-in everyday at `12:07PM EST`.\n";
+            completeResponse += "You can also manually check-in using the `/checkin` command.\n";
 
 
         }
