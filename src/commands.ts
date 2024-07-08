@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { register } from './commands/registerCommand';
 
 import { checkinAllUsers } from './hoyolab/checkinAllUsers';
+import {getTime} from "./bot";
 
 dotenv.config();
 
@@ -50,7 +51,8 @@ export const handleCommands = (client: Client) => {
     client.on('interactionCreate', async (interaction: Interaction) => {
         if (!interaction.isChatInputCommand()) return;
 
-        console.log(`Received command ${interaction.commandName} from ${interaction.user.tag}`);
+        const time: string = getTime();
+        console.log(`${time}| Received command ${interaction.commandName} from ${interaction.user.tag}`);
 
         switch (interaction.commandName) {
 

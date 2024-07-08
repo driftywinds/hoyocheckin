@@ -133,7 +133,7 @@ async function scheduleDailyTask(hour: number, minute: number) {
     });
 }
 
-function getTime(): string {
+export function getTime(): string {
     const timestamp = Date.now();
     const date = new Date(timestamp);
 
