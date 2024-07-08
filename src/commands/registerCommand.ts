@@ -62,15 +62,16 @@ export async function register(interaction: CommandInteraction) {
         let dmChannel: DMChannel;
         try {
             dmChannel = await interaction.user.createDM();
+            await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
+
             await interaction.reply({content: "Please check your DM's for further instruction.", ephemeral: true});
+
 
         } catch (err) {
             console.error('Error creating DM Channel:', err);
-            await interaction.reply('I was unable to send you a direct message. Please ensure your DMs are open and try again.');
+            await interaction.reply({content: 'I was unable to send you a direct message. Please ensure your DMs are open and try again.', ephemeral: true});
             return;
         }
-
-        await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
 
         // Start the data collection
 
