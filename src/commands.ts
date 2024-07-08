@@ -3,9 +3,10 @@ import { Client, Interaction ,REST, Routes, ApplicationCommandType } from 'disco
 import dotenv from 'dotenv';
 
 import { register } from './commands/registerCommand';
+import {checkinCommand} from "./commands/checkinCommand";
 
 import { checkinAllUsers } from './hoyolab/checkinAllUsers';
-import {getTime} from "./bot";
+import {getUserByDiscordID, getTime, User, Profile} from "./bot";
 
 dotenv.config();
 
@@ -17,12 +18,12 @@ export const commands = [
     },
     {
         name: 'checkin_all',
-        description: 'Check in all users. ADMIN ONLY',
+        description: 'Check in all users. BOT DEVELOPER ONLY',
         type: ApplicationCommandType.ChatInput,
     },
     {
-        name: 'ping',
-        description: 'Replies with Pong!',
+        name: 'checkin',
+        description: 'Checks you in.',
         type: ApplicationCommandType.ChatInput,
     }
 ];
@@ -67,7 +68,7 @@ export const handleCommands = (client: Client) => {
 
                 // Check if user is bot admin
                 if(interaction.user.id !== process.env.BOT_ADMIN_ID){
-                    interaction.reply('You do not have permission to use this command.');
+                    interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                     break;
                 }
 
@@ -76,9 +77,12 @@ export const handleCommands = (client: Client) => {
 
                 break;
             }
-            
-            case 'ping':{
-                interaction.reply('Pong!');
+
+            case 'checkin': {
+
+                await checkinCommand(interaction);
+
+
 
                 break;
             }
