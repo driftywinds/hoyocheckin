@@ -62,7 +62,7 @@ export async function register(interaction: CommandInteraction) {
         let dmChannel: DMChannel;
         try {
             dmChannel = await interaction.user.createDM();
-            await dmChannel.send('Please follow these instructions carefully.\nhttps://github.com/NickAwrist/Hoyolab_Bot/wiki/How-to-Copy-your-Hoyolab-Cookie\n\n');
+            await dmChannel.send('Please follow these instructions carefully.\nhttps://drive.google.com/file/d/1AwGOvibYZW33OdvUXLY_PssLAqMpY_xo/view?usp=sharing\n\n');
 
             await interaction.reply({content: "Please check your DM's for further instruction.", ephemeral: true});
 
