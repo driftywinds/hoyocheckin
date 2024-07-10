@@ -1,3 +1,2 @@
-This is a Discord bot to automatically check users into hoyolab for their daily check in.\
+The Hoyolab Dailycheckin Bot is a Discord bot that will automatically complete your daily checkin for Hoyoverse games like `Genshin Impact`, `Honkai Starrail`, and `Zenless Zone Zero`, \
 
-To build it, do `docker compose build`, then `docker compose up`
