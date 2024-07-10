@@ -153,6 +153,7 @@ export async function register(interaction: CommandInteraction) {
         let completeResponse: string = "";
         if (newProfile.genshin.length == 0 && newProfile.hk_str.length == 0 && newProfile.zzz.length == 0) {
             completeResponse += 'No accounts were found with the provided cookies. Please try again.';
+            completeResponse += 'If this issue persists. Try logging out of Hoyolab and logging back in.';
         } else {
             // If the user has an account, update it. Otherwise, create a new one.
             if (existingUser) {
@@ -183,7 +184,7 @@ export async function register(interaction: CommandInteraction) {
         dmChannel.send(completeResponse);
 
     } catch (error) {
-        console.error('Error during registration process:', error);
+        console.error('Error during registration process');
         //await interaction.followUp({content: 'An error occurred during the registration process. Please make sure your DMs are open.', ephemeral: true});
     }
 }
