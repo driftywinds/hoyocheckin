@@ -62,7 +62,7 @@ export async function register(interaction: CommandInteraction) {
         let dmChannel: DMChannel;
         try {
             dmChannel = await interaction.user.createDM();
-            await dmChannel.send('Please follow these instructions carefully.\nhttps://drive.google.com/file/d/1AwGOvibYZW33OdvUXLY_PssLAqMpY_xo/view?usp=sharing\n\n');
+            await dmChannel.send('Please follow these instructions carefully.\nhttps://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing\n\n');
 
             await interaction.reply({ content: "Please check your DMs for further instructions.", ephemeral: true });
         } catch (err) {
