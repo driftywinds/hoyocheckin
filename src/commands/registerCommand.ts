@@ -1,4 +1,4 @@
-import { CommandInteraction, DMChannel } from 'discord.js';
+import {CommandInteraction, DiscordAPIError, DMChannel} from 'discord.js';
 import { Profile, upsertUser, getProfilesByDiscordID, UID, getUserByDiscordID, User } from '../bot';
 import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
@@ -64,12 +64,23 @@ export async function register(interaction: CommandInteraction) {
             dmChannel = await interaction.user.createDM();
             await dmChannel.send('Please follow these instructions carefully.\nhttps://drive.google.com/file/d/1AwGOvibYZW33OdvUXLY_PssLAqMpY_xo/view?usp=sharing\n\n');
 
-            await interaction.reply({content: "Please check your DM's for further instruction.", ephemeral: true});
-
-
+            await interaction.reply({ content: "Please check your DMs for further instructions.", ephemeral: true });
         } catch (err) {
-            console.error('Error creating DM Channel:', err);
-            await interaction.reply({content: 'I was unable to send you a direct message. Please ensure your DMs are open and try again.', ephemeral: true});
+            if (err instanceof DiscordAPIError) {
+                if (err.code === 50007) {
+                    console.error('Cannot send messages to this user:', err);
+                    await interaction.reply({ content: 'I was unable to send you a direct message. Please ensure your DMs are open and try again.', ephemeral: true });
+                } else {
+                    console.error('Error creating DM Channel:', err);
+                    await interaction.reply({ content: 'An unexpected error occurred. Please try again later.', ephemeral: true });
+                }
+            } else if (err instanceof Error) {
+                console.error('General error:', err);
+                await interaction.reply({ content: 'An unexpected error occurred. Please try again later.', ephemeral: true });
+            } else {
+                console.error('Unknown error type:', err);
+                await interaction.reply({ content: 'An unexpected error occurred. Please try again later.', ephemeral: true });
+            }
             return;
         }
 
