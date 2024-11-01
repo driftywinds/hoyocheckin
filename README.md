@@ -9,7 +9,8 @@ Also available on Docker Hub - [```driftywinds/hoyocheckin:latest```](https://hu
 How to use: - 
 
 1. Clone the original repo.
-2. Remove the lines corresponding to building the container and write the "image" part of the docker-compose.yml to ```ghcr.io/driftywinds/hoyocheckin:latest```.
+2. Copy the .env file from my repo and populate it with your Discord bot entries.
+3. Remove the lines corresponding to building the container and write the "image" part of the docker-compose.yml to ```ghcr.io/driftywinds/hoyocheckin:latest```.
 
 <br>
 
