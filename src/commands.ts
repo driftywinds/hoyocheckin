@@ -15,7 +15,7 @@ export const commands = [
         name: 'register',
         description: 'Register here',
         type: ApplicationCommandType.ChatInput,
-        cooldown: 60,
+        cooldown: 20,
     },
     {
         name: 'checkin_all',
@@ -26,7 +26,7 @@ export const commands = [
         name: 'checkin',
         description: 'Checks you in.',
         type: ApplicationCommandType.ChatInput,
-        cooldown: 900,
+        cooldown: 120,
     }
 ];
 
