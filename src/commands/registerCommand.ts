@@ -1,8 +1,9 @@
 import {CommandInteraction, DiscordAPIError, DMChannel} from 'discord.js';
-import { Profile, upsertUser, getProfilesByDiscordID, UID, getUserByDiscordID, User } from '../bot';
-import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
-import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
-import { getUserZenlessInfo } from '../zenless_zone_zero/getUserInfo_zenless';
+import { upsertUser, getProfilesByDiscordID, getUserByDiscordID } from '../bot';
+import { getUserGenshinInfo } from '../games/genshin/getUserInfo_genshin';
+import { getUserStarrailInfo } from '../games/hk_starrail/getUserInfo_hkstr';
+import { getUserZenlessInfo } from '../games/zenless_zone_zero/getUserInfo_zenless';
+import {Profile, UID, User} from "../models";
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
     await dmChannel.send('---------------\n**Please enter the nickname of the profile you would like to create/update.**\n');

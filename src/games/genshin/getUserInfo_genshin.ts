@@ -1,5 +1,6 @@
 import { DMChannel } from "discord.js";
-import { UID } from "../bot";
+
+import {UID} from "../../models";
 
 export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [

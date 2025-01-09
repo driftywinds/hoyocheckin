@@ -1,8 +1,9 @@
-import {readUsersFromFile, User} from '../bot';
+import {readUsersFromFile} from '../bot';
 
-import { genshinCheckin } from '../genshin/checkin_genshin';
-import { hkstrCheckin } from '../hk_starrail/checkin_hkstr';
-import { zzzCheckin } from '../zenless_zone_zero/checkin_zenless';
+import { genshinCheckin } from '../games/genshin/checkin_genshin';
+import { hkstrCheckin } from '../games/hk_starrail/checkin_hkstr';
+import { zzzCheckin } from '../games/zenless_zone_zero/checkin_zenless';
+import {User} from "../models";
 
 export async function checkinAllUsers() {
     try {

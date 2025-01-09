@@ -1,8 +1,9 @@
 import { CommandInteraction } from "discord.js";
-import { getUserByDiscordID, User, Profile } from "../bot";
-import { genshinCheckin } from "../genshin/checkin_genshin";
-import {hkstrCheckin} from "../hk_starrail/checkin_hkstr";
-import {zzzCheckin} from "../zenless_zone_zero/checkin_zenless";
+import { getUserByDiscordID } from "../bot";
+import { genshinCheckin } from "../games/genshin/checkin_genshin";
+import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
+import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
+import {Profile, User} from "../models";
 
 export async function checkinCommand(interaction: CommandInteraction) {
     try {

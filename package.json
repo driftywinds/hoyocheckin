@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node-dev src/bot.ts",
+    "start": "nodemon --exec ts-node-dev src/bot.ts production",
     "build": "tsc",
-    "dev": "nodemon --exec ts-node-dev src/bot.ts",
+    "dev": "nodemon --exec ts-node-dev src/bot.ts development",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [],

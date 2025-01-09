@@ -6,34 +6,8 @@ import * as fs from 'fs';
 
 import {handleCommands, registerCommands} from './commands';
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
+import {Profile, User} from "./models";
 
-dotenv.config();
-
-export interface User {
-    username: string;
-    discord_id: string;
-    profiles: Profile[];
-}
-
-// Create profile object
-export interface Profile {
-    nickname: string;
-    genshin: UID[];
-    hk_str: UID[];
-    hk_imp: UID[];
-    zzz: UID[];
-    pasted_cookie: Record<string, string>;
-    raw_cookie: string;
-}
-
-// Create uid object for user's profiles
-export interface UID {
-    region: string;
-    region_name: string;
-    gameUid: number;
-    nickname: string;
-    level: number;
-}
 
 // Create client object and list intents
 const client = new Client({ intents: [
@@ -42,29 +16,33 @@ const client = new Client({ intents: [
 ]});
 
 // Process environment variables
+const environment: string = process.argv[2] || 'development';
+dotenv.config({ path: `.env.${environment}` });
+
+console.log(`Loaded environment file: .env.${environment}`);
+
 const TOKEN = process.env.TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
+export const BOT_ADMIN_ID = process.env.BOT_ADMIN_ID;
 
-if(!TOKEN || !CLIENT_ID){
+if(!TOKEN || !CLIENT_ID || !BOT_ADMIN_ID){
     console.error('Error loading environment variables');
     process.exit(1)
+}else{
+    console.log('Environment variables loaded successfully');
 }
 
 // When ready
 client.on('ready', async () => {
-    console.log(`Logged in as ${client.user?.tag}!`);
-
-    console.log(getTime());
     // Register slash commands
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
 
+    // Schedule Daily checkin task
     await scheduleDailyTask(12, 7);
-
-    console.log('Bot is ready')
-
 });
 
+// TODO: Phase away from file storage and use MongoDB
 // File functions
 
 // Function to read and parse the JSON file
@@ -149,7 +127,10 @@ export function getTime(): string {
 
 }
 
-client.login(TOKEN);
+client.login(TOKEN).then(() => {
+    console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
+});
+
 
 // to shut down do 
 // ps aux

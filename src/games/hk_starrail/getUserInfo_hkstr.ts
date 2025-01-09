@@ -1,12 +1,13 @@
 import { DMChannel } from "discord.js";
-import { UID } from "../bot";
 
-export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
+import {UID} from "../../models";
+
+export async function getUserStarrailInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [
-        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306647686&game_biz=nap_global&region=prod_gf_us' },
-        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306714052&game_biz=nap_global&region=prod_gf_eu' },
-        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306679420&game_biz=nap_global&region=prod_gf_jp'},
-        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306737094&game_biz=nap_global&region=prod_gf_sg' }
+        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847192697&game_biz=hkrpg_global&region=prod_official_usa' },
+        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847355247&game_biz=hkrpg_global&region=prod_official_eur' },
+        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847377893&game_biz=hkrpg_global&region=prod_official_asia'},
+        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847377893&game_biz=hkrpg_global&region=prod_official_cht' }
     ];
 
     const header = {
@@ -15,8 +16,8 @@ export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel):
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        'Referer': 'https://act.hoyolab.com/',
-        'Origin': 'https://act.hoyolab.com',
+        'Referer': 'https://hsr.hoyoverse.com/',
+        'Origin': 'https://hsr.hoyoverse.com',
     };
 
     const options: RequestInit = {
@@ -34,7 +35,7 @@ export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel):
                 console.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 console.error('Error response:', errorResponseText);
-                continue;
+                continue; 
             }
 
             const responseJson = await hoyolabResponse.json();
@@ -52,8 +53,8 @@ export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel):
                 console.log(`Found UID for user in ${region}`);
 
                 if(dmChannel){
-
-                    dmChannel.send(`**ZENLESS ZONE ZERO ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
+                    
+                    dmChannel.send(`**HONKAI STARRAIL ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
                 }
 
                 // Store the information for successful regions

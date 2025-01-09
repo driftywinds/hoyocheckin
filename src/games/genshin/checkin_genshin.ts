@@ -1,4 +1,4 @@
-import {Profile} from "../bot";
+import {Profile} from "../../models";
 
 export async function genshinCheckin(profile: Profile): Promise<string> {
     
