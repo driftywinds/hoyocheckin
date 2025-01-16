@@ -1,4 +1,4 @@
-import {Profile} from "../../models";
+import {Profile} from "../../types";
 
 export async function zzzCheckin(profile: Profile): Promise<string> {
 

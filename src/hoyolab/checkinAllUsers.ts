@@ -3,7 +3,7 @@ import {readUsersFromFile} from '../bot';
 import { genshinCheckin } from '../games/genshin/checkin_genshin';
 import { hkstrCheckin } from '../games/hk_starrail/checkin_hkstr';
 import { zzzCheckin } from '../games/zenless_zone_zero/checkin_zenless';
-import {User} from "../models";
+import {User} from "../types";
 
 export async function checkinAllUsers() {
     try {

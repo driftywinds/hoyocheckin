@@ -6,7 +6,8 @@ import * as fs from 'fs';
 
 import {handleCommands, registerCommands} from './commands';
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
-import {Profile, User} from "./models";
+import {Profile, User} from "./types";
+import {connectToDatabase} from "./database/dbConnection";
 
 
 // Create client object and list intents
@@ -21,14 +22,22 @@ dotenv.config({ path: `.env.${environment}` });
 
 console.log(`Loaded environment file: .env.${environment}`);
 
+// Bot environment variables
 const TOKEN = process.env.TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
 export const BOT_ADMIN_ID = process.env.BOT_ADMIN_ID;
 
+// Database environment variables
+const MONGO_URI = process.env.MONGO_URI;
+const DATABASE_NAME = process.env.DATABASE_NAME;
+
 if(!TOKEN || !CLIENT_ID || !BOT_ADMIN_ID){
-    console.error('Error loading environment variables');
+    console.error('Error loading bot environment variables');
     process.exit(1)
-}else{
+}else if(!MONGO_URI || !DATABASE_NAME){
+    console.error('Error loading database environment variables');
+    process.exit(1)
+} else{
     console.log('Environment variables loaded successfully');
 }
 
@@ -37,6 +46,9 @@ client.on('ready', async () => {
     // Register slash commands
     await registerCommands(CLIENT_ID, TOKEN);
     handleCommands(client);
+
+    // Connect to MongoDB
+    await connectToDatabase(MONGO_URI, DATABASE_NAME);
 
     // Schedule Daily checkin task
     await scheduleDailyTask(12, 7);
@@ -130,8 +142,3 @@ export function getTime(): string {
 client.login(TOKEN).then(() => {
     console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
 });
-
-
-// to shut down do 
-// ps aux
-// then kill the node process

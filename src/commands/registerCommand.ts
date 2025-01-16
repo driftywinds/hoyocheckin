@@ -3,7 +3,7 @@ import { upsertUser, getProfilesByDiscordID, getUserByDiscordID } from '../bot';
 import { getUserGenshinInfo } from '../games/genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../games/hk_starrail/getUserInfo_hkstr';
 import { getUserZenlessInfo } from '../games/zenless_zone_zero/getUserInfo_zenless';
-import {Profile, UID, User} from "../models";
+import {Profile, UID, User} from "../types";
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
     await dmChannel.send('---------------\n**Please enter the nickname of the profile you would like to create/update.**\n');

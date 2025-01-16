@@ -3,7 +3,7 @@ import { getUserByDiscordID } from "../bot";
 import { genshinCheckin } from "../games/genshin/checkin_genshin";
 import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
 import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
-import {Profile, User} from "../models";
+import {Profile, User} from "../types";
 
 export async function checkinCommand(interaction: CommandInteraction) {
     try {
