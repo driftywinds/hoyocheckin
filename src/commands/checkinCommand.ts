@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js";
-import { getUserByDiscordID } from "../bot";
+import { findUserByDiscordId } from "../database/userRepository";
 import { genshinCheckin } from "../games/genshin/checkin_genshin";
 import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
 import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
@@ -9,7 +9,7 @@ export async function checkinCommand(interaction: CommandInteraction) {
     try {
         await interaction.reply({ content: 'Processing your check-in request...', ephemeral: true });
 
-        const user: User | undefined = getUserByDiscordID(interaction.user.id);
+        const user: User | null = await findUserByDiscordId(interaction.user.id);
         if (!user) {
             await interaction.followUp({ content: 'User not found. Please register first using /register', ephemeral: true });
             return;

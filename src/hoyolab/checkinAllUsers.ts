@@ -1,4 +1,4 @@
-import {readUsersFromFile} from '../bot';
+import { getAllUsers} from "../database/userRepository";
 
 import { genshinCheckin } from '../games/genshin/checkin_genshin';
 import { hkstrCheckin } from '../games/hk_starrail/checkin_hkstr';
@@ -9,7 +9,7 @@ export async function checkinAllUsers() {
     try {
 
         // Gather all user's information from JSON
-        const users: User[] = readUsersFromFile();
+        const users: User[] = await getAllUsers();
 
         for(const user of users){
 

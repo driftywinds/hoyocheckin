@@ -23,90 +23,38 @@ dotenv.config({ path: `.env.${environment}` });
 console.log(`Loaded environment file: .env.${environment}`);
 
 // Bot environment variables
-const TOKEN = process.env.TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
-export const BOT_ADMIN_ID = process.env.BOT_ADMIN_ID;
+export const config = {
+    TOKEN: process.env.TOKEN || '',
+    CLIENT_ID: process.env.CLIENT_ID || '',
+    BOT_ADMIN_ID: process.env.BOT_ADMIN_ID || '',
+    MONGO_URI: process.env.MONGO_URI || '',
+    DATABASE_NAME: process.env.DATABASE_NAME || '',
+}
 
-// Database environment variables
-const MONGO_URI = process.env.MONGO_URI;
-const DATABASE_NAME = process.env.DATABASE_NAME;
-
-if(!TOKEN || !CLIENT_ID || !BOT_ADMIN_ID){
-    console.error('Error loading bot environment variables');
-    process.exit(1)
-}else if(!MONGO_URI || !DATABASE_NAME){
-    console.error('Error loading database environment variables');
-    process.exit(1)
-} else{
-    console.log('Environment variables loaded successfully');
+if(!config.TOKEN || !config.CLIENT_ID || !config.BOT_ADMIN_ID || !config.MONGO_URI || !config.DATABASE_NAME){
+    console.error('Missing environment variables');
+    process.exit(1);
 }
 
 // When ready
 client.on('ready', async () => {
+    // Connect to MongoDB
+    console.log('Initializing database connection...');
+    await connectToDatabase(config.MONGO_URI, config.DATABASE_NAME);
+    console.log('Database connection established.');
+
     // Register slash commands
-    await registerCommands(CLIENT_ID, TOKEN);
+    console.log('Registering slash commands...');
+    await registerCommands(config.CLIENT_ID, config.TOKEN);
+    console.log('Slash commands registered.');
+
     handleCommands(client);
 
-    // Connect to MongoDB
-    await connectToDatabase(MONGO_URI, DATABASE_NAME);
-
     // Schedule Daily checkin task
+    console.log('Scheduling daily check-in task...');
     await scheduleDailyTask(12, 7);
+    console.log('Daily check-in task scheduled.');
 });
-
-// TODO: Phase away from file storage and use MongoDB
-// File functions
-
-// Function to read and parse the JSON file
-export function readUsersFromFile(): User[] {
-    const filePath: string = './users.json';
-    try {
-        const fileContent: string = fs.readFileSync(filePath, 'utf8');
-        const jsonData: User[] = JSON.parse(fileContent).users;
-
-        if (Array.isArray(jsonData)) {
-            return jsonData;
-        } else {
-            console.error('Invalid JSON structure. Expected property "users" to be an array.');
-            return [];
-        }
-    } catch (error) {
-        console.error('Error reading or parsing the JSON file:', error);
-        return [];
-    }
-}
-
-// Get user by discordID
-export function getUserByDiscordID(discordID: string): User | undefined {
-    const users: User[] = readUsersFromFile();
-    return users.find(user => user.discord_id === discordID);
-}
-
-// Get all profiles by discord ID
-export function getProfilesByDiscordID(discordID: string): Profile[] | undefined {
-    const users: User[] = readUsersFromFile();
-    return users.find(user => user.discord_id === discordID)?.profiles || [];
-}
-
-// Set JSON file users array
-function writeUsersToFile(users: User[]): void {
-    const jsonData = { users };
-    fs.writeFileSync('./users.json', JSON.stringify(jsonData, null, 2), 'utf8');
-}
-
-// Add a new user to the JSON file
-export function upsertUser(newUser: User): void {
-    const users: User[] = readUsersFromFile();
-    const existingUserIndex = users.findIndex(user => user.discord_id === newUser.discord_id);
-
-    if (existingUserIndex > -1) {
-        users[existingUserIndex] = newUser;
-    } else {
-        users.push(newUser);
-    }
-
-    writeUsersToFile(users);
-}
 
 // Timing functions
 
@@ -139,6 +87,6 @@ export function getTime(): string {
 
 }
 
-client.login(TOKEN).then(() => {
+client.login(config.TOKEN).then(() => {
     console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
 });

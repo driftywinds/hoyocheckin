@@ -6,7 +6,7 @@ import {checkinCommand} from "./commands/checkinCommand";
 import { checkinAllUsers } from './hoyolab/checkinAllUsers';
 import {getTime} from "./bot";
 
-import {BOT_ADMIN_ID} from "./bot";
+import {config} from "./bot";
 
 const commands = [
     {
@@ -34,14 +34,10 @@ export const registerCommands = async (clientId: string, token: string) => {
 
     await (async () => {
         try {
-            console.log('Loading application (/) commands.');
-
             await rest.put(
                 Routes.applicationCommands(clientId),
                 {body: commands},
             );
-
-            console.log('Successfully loaded application (/) commands.');
         } catch (error) {
             console.error(error);
         }
@@ -98,7 +94,7 @@ export const handleCommands = (client: Client) => {
             case 'checkin_all':{
 
                 // Check if user is bot admin
-                if(interaction.user.id !== BOT_ADMIN_ID){
+                if(interaction.user.id !== config.BOT_ADMIN_ID){
                     interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                     break;
                 }
