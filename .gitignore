@@ -4,3 +4,4 @@ package-lock.json
 userData.json
 dist
 .idea
+/.idea/
