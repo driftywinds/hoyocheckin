@@ -1,8 +1,6 @@
-import { DMChannel } from "discord.js";
-
 import {UID} from "../../types";
 
-export async function getUserStarrailInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
+export async function getUserStarrailInfo(cookie: string): Promise<UID[]> {
     const regionsURLS = [
         { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847192697&game_biz=hkrpg_global&region=prod_official_usa' },
         { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847355247&game_biz=hkrpg_global&region=prod_official_eur' },
@@ -51,11 +49,6 @@ export async function getUserStarrailInfo(cookie: string, dmChannel?: DMChannel)
                 const region_name = characterInfo.region_name;
 
                 console.log(`Found UID for user in ${region}`);
-
-                if(dmChannel){
-                    
-                    dmChannel.send(`**HONKAI STARRAIL ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
-                }
 
                 // Store the information for successful regions
                 successfulRegions.push({ region, gameUid, nickname, level, region_name });

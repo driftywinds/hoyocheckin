@@ -1,10 +1,13 @@
-import {Client, GatewayIntentBits} from 'discord.js';
+import {Client, GatewayIntentBits, Interaction} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 
-import {handleCommands, registerCommands} from './commands';
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
 import {connectToDatabase} from "./database/dbConnection";
+import {handleButtonInteraction} from "./interactions/buttons";
+import {handleCommands, registerCommands} from './interactions/commands';
+import {handleModalSubmit} from "./interactions/modalSubmit";
+import {handleStringSelectInteraction} from "./interactions/stringSelect";
 
 
 // Create client object and list intents
@@ -45,7 +48,7 @@ client.on('ready', async () => {
     await registerCommands(config.CLIENT_ID, config.TOKEN);
     console.log('Slash commands registered.');
 
-    handleCommands(client);
+    handleInteractions(client);
 
     // Schedule Daily checkin task
     console.log('Scheduling daily check-in task...');
@@ -87,3 +90,19 @@ export function getTime(): string {
 client.login(config.TOKEN).then(() => {
     console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
 });
+
+// Interaction Handling
+
+export const handleInteractions = (client: Client): void => {
+    client.on('interactionCreate', async (interaction: Interaction) => {
+        if (interaction.isButton()){
+            await handleButtonInteraction(interaction);
+        }else if(interaction.isCommand()){
+            await handleCommands(interaction);
+        }else if(interaction.isModalSubmit()){
+            await handleModalSubmit(interaction);
+        }else if(interaction.isStringSelectMenu()){
+            await handleStringSelectInteraction(interaction);
+        }
+    });
+}

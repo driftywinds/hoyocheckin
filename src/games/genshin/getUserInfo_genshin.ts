@@ -1,8 +1,6 @@
-import { DMChannel } from "discord.js";
-
 import {UID} from "../../types";
 
-export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
+export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
     const regionsURLS = [
         { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_usa&game_biz=hk4e_global&sLangKey=en-us' },
         { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_euro&game_biz=hk4e_global&sLangKey=en-us' },
@@ -51,10 +49,6 @@ export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel):
                 const region_name = characterInfo.region_name;
 
                 console.log(`Found UID for user in ${region}`);
-
-                if(dmChannel){
-                    dmChannel.send(`**GENSHIN IMPACT ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
-                }
 
                 // Store the information for successful regions
                 successfulRegions.push({ region, gameUid, nickname, level, region_name });

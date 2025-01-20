@@ -9,7 +9,6 @@ export interface Profile {
     nickname: string;
     genshin: UID[];
     hk_str: UID[];
-    hk_imp: UID[];
     zzz: UID[];
     pasted_cookie: Record<string, string>;
     raw_cookie: string;
