@@ -2,38 +2,10 @@ import {Client, GatewayIntentBits} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 
-import * as fs from 'fs';
-
 import {handleCommands, registerCommands} from './commands';
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
+import {connectToDatabase} from "./database/dbConnection";
 
-dotenv.config();
-
-export interface User {
-    username: string;
-    discord_id: string;
-    profiles: Profile[];
-}
-
-// Create profile object
-export interface Profile {
-    nickname: string;
-    genshin: UID[];
-    hk_str: UID[];
-    hk_imp: UID[];
-    zzz: UID[];
-    pasted_cookie: Record<string, string>;
-    raw_cookie: string;
-}
-
-// Create uid object for user's profiles
-export interface UID {
-    region: string;
-    region_name: string;
-    gameUid: number;
-    nickname: string;
-    level: number;
-}
 
 // Create client object and list intents
 const client = new Client({ intents: [
@@ -42,81 +14,44 @@ const client = new Client({ intents: [
 ]});
 
 // Process environment variables
-const TOKEN = process.env.TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
+const environment: string = process.argv[2] || 'development';
+dotenv.config({ path: `.env.${environment}` });
 
-if(!TOKEN || !CLIENT_ID){
-    console.error('Error loading environment variables');
-    process.exit(1)
+console.log(`Loaded environment file: .env.${environment}`);
+
+// Bot environment variables
+export const config = {
+    TOKEN: process.env.TOKEN || '',
+    CLIENT_ID: process.env.CLIENT_ID || '',
+    BOT_ADMIN_ID: process.env.BOT_ADMIN_ID || '',
+    MONGO_URI: process.env.MONGO_URI || '',
+    DATABASE_NAME: process.env.DATABASE_NAME || '',
+}
+
+if(!config.TOKEN || !config.CLIENT_ID || !config.BOT_ADMIN_ID || !config.MONGO_URI || !config.DATABASE_NAME){
+    console.error('Missing environment variables');
+    process.exit(1);
 }
 
 // When ready
 client.on('ready', async () => {
-    console.log(`Logged in as ${client.user?.tag}!`);
+    // Connect to MongoDB
+    console.log('Initializing database connection...');
+    await connectToDatabase(config.MONGO_URI, config.DATABASE_NAME);
+    console.log('Database connection established.');
 
-    console.log(getTime());
     // Register slash commands
-    await registerCommands(CLIENT_ID, TOKEN);
+    console.log('Registering slash commands...');
+    await registerCommands(config.CLIENT_ID, config.TOKEN);
+    console.log('Slash commands registered.');
+
     handleCommands(client);
 
+    // Schedule Daily checkin task
+    console.log('Scheduling daily check-in task...');
     await scheduleDailyTask(12, 7);
-
-    console.log('Bot is ready')
-
+    console.log('Daily check-in task scheduled.');
 });
-
-// File functions
-
-// Function to read and parse the JSON file
-export function readUsersFromFile(): User[] {
-    const filePath: string = './users.json';
-    try {
-        const fileContent: string = fs.readFileSync(filePath, 'utf8');
-        const jsonData: User[] = JSON.parse(fileContent).users;
-
-        if (Array.isArray(jsonData)) {
-            return jsonData;
-        } else {
-            console.error('Invalid JSON structure. Expected property "users" to be an array.');
-            return [];
-        }
-    } catch (error) {
-        console.error('Error reading or parsing the JSON file:', error);
-        return [];
-    }
-}
-
-// Get user by discordID
-export function getUserByDiscordID(discordID: string): User | undefined {
-    const users: User[] = readUsersFromFile();
-    return users.find(user => user.discord_id === discordID);
-}
-
-// Get all profiles by discord ID
-export function getProfilesByDiscordID(discordID: string): Profile[] | undefined {
-    const users: User[] = readUsersFromFile();
-    return users.find(user => user.discord_id === discordID)?.profiles || [];
-}
-
-// Set JSON file users array
-function writeUsersToFile(users: User[]): void {
-    const jsonData = { users };
-    fs.writeFileSync('./users.json', JSON.stringify(jsonData, null, 2), 'utf8');
-}
-
-// Add a new user to the JSON file
-export function upsertUser(newUser: User): void {
-    const users: User[] = readUsersFromFile();
-    const existingUserIndex = users.findIndex(user => user.discord_id === newUser.discord_id);
-
-    if (existingUserIndex > -1) {
-        users[existingUserIndex] = newUser;
-    } else {
-        users.push(newUser);
-    }
-
-    writeUsersToFile(users);
-}
 
 // Timing functions
 
@@ -149,8 +84,6 @@ export function getTime(): string {
 
 }
 
-client.login(TOKEN);
-
-// to shut down do 
-// ps aux
-// then kill the node process
+client.login(config.TOKEN).then(() => {
+    console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
+});

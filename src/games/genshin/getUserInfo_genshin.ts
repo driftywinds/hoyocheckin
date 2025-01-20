@@ -1,12 +1,13 @@
 import { DMChannel } from "discord.js";
-import { UID } from "../bot";
 
-export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
+import {UID} from "../../types";
+
+export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [
-        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306647686&game_biz=nap_global&region=prod_gf_us' },
-        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306714052&game_biz=nap_global&region=prod_gf_eu' },
-        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306679420&game_biz=nap_global&region=prod_gf_jp'},
-        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1720306737094&game_biz=nap_global&region=prod_gf_sg' }
+        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_usa&game_biz=hk4e_global&sLangKey=en-us' },
+        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_euro&game_biz=hk4e_global&sLangKey=en-us' },
+        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_asia&game_biz=hk4e_global&sLangKey=en-us' },
+        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_cht&game_biz=hk4e_global&sLangKey=en-us' }
     ];
 
     const header = {
@@ -34,7 +35,7 @@ export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel):
                 console.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 console.error('Error response:', errorResponseText);
-                continue;
+                continue; 
             }
 
             const responseJson = await hoyolabResponse.json();
@@ -52,8 +53,7 @@ export async function getUserZenlessInfo(cookie: string, dmChannel?: DMChannel):
                 console.log(`Found UID for user in ${region}`);
 
                 if(dmChannel){
-
-                    dmChannel.send(`**ZENLESS ZONE ZERO ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
+                    dmChannel.send(`**GENSHIN IMPACT ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
                 }
 
                 // Store the information for successful regions

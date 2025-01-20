@@ -1,13 +1,14 @@
-import {Profile} from "../bot";
+import {Profile} from "../../types";
 
-export async function hkstrCheckin(profile: Profile): Promise<string> {
+export async function genshinCheckin(profile: Profile): Promise<string> {
     
-    const url = 'https://sg-public-api.hoyolab.com/event/luna/os/sign?act_id=e202303301540311';
-    const username = profile.nickname;
+    const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
+    const nickname = profile.nickname;
     const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
-        return `Check-in skipped for ${username}: Honkai Starrail check-in is disabled.`;
+        return `Check-in skipped for ${nickname}: Genshin Impact check-in is disabled.`;
+        
     }
 
     const header = {
@@ -33,9 +34,9 @@ export async function hkstrCheckin(profile: Profile): Promise<string> {
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
 
-        return `Check-in completed for ${username}` + `\n${checkInResult}` + '\n';
+        return `Check-in completed for ${nickname}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         console.error('Error during fetch:', error);
-        return `Error during fetch for ${username}: `;
+        return `Error during fetch for ${nickname}: `;
     }
 }

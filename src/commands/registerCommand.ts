@@ -1,8 +1,11 @@
 import {CommandInteraction, DiscordAPIError, DMChannel} from 'discord.js';
-import { Profile, upsertUser, getProfilesByDiscordID, UID, getUserByDiscordID, User } from '../bot';
-import { getUserGenshinInfo } from '../genshin/getUserInfo_genshin';
-import { getUserStarrailInfo } from '../hk_starrail/getUserInfo_hkstr';
-import { getUserZenlessInfo } from '../zenless_zone_zero/getUserInfo_zenless';
+import { getUserGenshinInfo } from '../games/genshin/getUserInfo_genshin';
+import { getUserStarrailInfo } from '../games/hk_starrail/getUserInfo_hkstr';
+import { getUserZenlessInfo } from '../games/zenless_zone_zero/getUserInfo_zenless';
+import {Profile, UID, User} from "../types";
+import {findUserByDiscordId, saveUser} from "../database/userRepository";
+
+const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
 async function collectNickname(dmChannel: DMChannel): Promise<string | null> {
     await dmChannel.send('---------------\n**Please enter the nickname of the profile you would like to create/update.**\n');
@@ -62,7 +65,7 @@ export async function register(interaction: CommandInteraction) {
         let dmChannel: DMChannel;
         try {
             dmChannel = await interaction.user.createDM();
-            await dmChannel.send('Please follow these instructions carefully.\nhttps://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing\n\n');
+            await dmChannel.send(`Please follow these instructions carefully.\n${INSTRUCTIONS_LINK}\n\n`);
 
             await interaction.reply({ content: "Please check your DMs for further instructions.", ephemeral: true });
         } catch (err) {
@@ -87,8 +90,8 @@ export async function register(interaction: CommandInteraction) {
         // Start the data collection
 
         // Check if the user already has an account
-        const existingUser: User | undefined = getUserByDiscordID(interaction.user.id);
-        const profiles: Profile[] | undefined = getProfilesByDiscordID(interaction.user.id);
+        const existingUser: User | null = await findUserByDiscordId(interaction.user.id);
+        const profiles: Profile[] | undefined = existingUser?.profiles;
 
         if (existingUser) {
             dmChannel.send('Welcome back! Here are your current profiles:');
@@ -132,9 +135,9 @@ export async function register(interaction: CommandInteraction) {
         if (!cookie) return;
 
         // Translate the cookies into JSON
-        const cookierPairs = cookie?.split(';').map(pair => pair.trim().split('='));
+        const cookiePairs = cookie?.split(';').map(pair => pair.trim().split('='));
         const cookieJSON: Record<string, string> = {};
-        cookierPairs?.forEach(([key, value]) => {
+        cookiePairs?.forEach(([key, value]) => {
             cookieJSON[key] = value;
         });
 
@@ -176,21 +179,19 @@ export async function register(interaction: CommandInteraction) {
                     existingUser.profiles.push(newProfile);
                 }
 
-                upsertUser(existingUser);
+                await saveUser(existingUser);
             } else {
                 const newUser: User = {
                     'username': interaction.user.username,
                     'discord_id': interaction.user.id,
                     'profiles': [newProfile]
                 };
-                upsertUser(newUser);
+                await saveUser(newUser);
             }
 
             completeResponse += "Registration complete! Your profile has been saved!\n";
             completeResponse += "Your profile is enrolled to check-in everyday at `12:07PM EST`.\n";
             completeResponse += "You can also manually check-in using the `/checkin` command.\n";
-
-
         }
         dmChannel.send(completeResponse);
 

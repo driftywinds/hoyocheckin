@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Tailscale
+      - name: Set up Tailscale
         uses: tailscale/github-action@v2
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
@@ -21,8 +21,11 @@ jobs:
           tags: tag:ci
           version: 1.52.0
 
-      - name: Wait for Tailscale to Connect
-        run: sleep 10  
+      - name: Verify Tailscale Connection
+        run: |
+          if ! tailscale status; then
+            echo "Tailscale not connected"; exit 1;
+          fi
 
       - name: Write SSH Key to File
         run: |
@@ -37,4 +40,9 @@ jobs:
 
       - name: Deploy bot with Docker
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.PI_TAILSCALE_IP }} 'cd /home/bots/Dailycheckin_Bot && git pull origin main && docker compose down && docker compose up -d --build'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.PI_TAILSCALE_IP }} << 'EOF'
+            cd /home/bots/Dailycheckin_Bot
+            git pull origin main
+            docker compose down --remove-orphans
+            docker compose --env-file .env.production up -d --build
+          EOF

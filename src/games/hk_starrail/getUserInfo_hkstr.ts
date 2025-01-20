@@ -1,12 +1,13 @@
 import { DMChannel } from "discord.js";
-import { UID } from "../bot";
 
-export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
+import {UID} from "../../types";
+
+export async function getUserStarrailInfo(cookie: string, dmChannel?: DMChannel): Promise<UID[]> {
     const regionsURLS = [
-        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_usa&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_euro&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_asia&game_biz=hk4e_global&sLangKey=en-us' },
-        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesByCookieToken?lang=en&region=os_cht&game_biz=hk4e_global&sLangKey=en-us' }
+        { region: 'os_usa', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847192697&game_biz=hkrpg_global&region=prod_official_usa' },
+        { region: 'os_euro', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847355247&game_biz=hkrpg_global&region=prod_official_eur' },
+        { region: 'os_asia', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847377893&game_biz=hkrpg_global&region=prod_official_asia'},
+        { region: 'os_cht', url: 'https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken?t=1706847377893&game_biz=hkrpg_global&region=prod_official_cht' }
     ];
 
     const header = {
@@ -15,8 +16,8 @@ export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel):
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        'Referer': 'https://act.hoyolab.com/',
-        'Origin': 'https://act.hoyolab.com',
+        'Referer': 'https://hsr.hoyoverse.com/',
+        'Origin': 'https://hsr.hoyoverse.com',
     };
 
     const options: RequestInit = {
@@ -53,7 +54,7 @@ export async function getUserGenshinInfo(cookie: string, dmChannel?: DMChannel):
 
                 if(dmChannel){
                     
-                    dmChannel.send(`**GENSHIN IMPACT ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
+                    dmChannel.send(`**HONKAI STARRAIL ACCOUNT FOUND |**\nServer: __${region_name}__\nNickname: __${nickname}__\nlvl: __${level}__`);
                 }
 
                 // Store the information for successful regions

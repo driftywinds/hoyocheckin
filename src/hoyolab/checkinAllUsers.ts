@@ -1,14 +1,15 @@
-import {readUsersFromFile, User} from '../bot';
+import { getAllUsers} from "../database/userRepository";
 
-import { genshinCheckin } from '../genshin/checkin_genshin';
-import { hkstrCheckin } from '../hk_starrail/checkin_hkstr';
-import { zzzCheckin } from '../zenless_zone_zero/checkin_zenless';
+import { genshinCheckin } from '../games/genshin/checkin_genshin';
+import { hkstrCheckin } from '../games/hk_starrail/checkin_hkstr';
+import { zzzCheckin } from '../games/zenless_zone_zero/checkin_zenless';
+import {User} from "../types";
 
 export async function checkinAllUsers() {
     try {
 
         // Gather all user's information from JSON
-        const users: User[] = readUsersFromFile();
+        const users: User[] = await getAllUsers();
 
         for(const user of users){
 

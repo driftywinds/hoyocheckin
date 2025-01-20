@@ -1,16 +1,14 @@
 import { Client, Interaction ,REST, Routes, ApplicationCommandType } from 'discord.js';
 
-import dotenv from 'dotenv';
-
 import { register } from './commands/registerCommand';
 import {checkinCommand} from "./commands/checkinCommand";
 
 import { checkinAllUsers } from './hoyolab/checkinAllUsers';
 import {getTime} from "./bot";
 
-dotenv.config();
+import {config} from "./bot";
 
-export const commands = [
+const commands = [
     {
         name: 'register',
         description: 'Register here',
@@ -32,18 +30,14 @@ export const commands = [
 
 export const registerCommands = async (clientId: string, token: string) => {
 
-    const rest = new REST({ version: '10' }).setToken(token);
+    const rest: REST = new REST({ version: '10' }).setToken(token);
 
     await (async () => {
         try {
-            console.log('Started refreshing application (/) commands.');
-
             await rest.put(
                 Routes.applicationCommands(clientId),
                 {body: commands},
             );
-
-            console.log('Successfully reloaded application (/) commands.');
         } catch (error) {
             console.error(error);
         }
@@ -51,7 +45,6 @@ export const registerCommands = async (clientId: string, token: string) => {
 };
 
 const cooldowns = new Map<string, Map<string, number>>();
-
 
 export const handleCommands = (client: Client) => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -101,13 +94,12 @@ export const handleCommands = (client: Client) => {
             case 'checkin_all':{
 
                 // Check if user is bot admin
-                if(interaction.user.id !== process.env.BOT_ADMIN_ID){
+                if(interaction.user.id !== config.BOT_ADMIN_ID){
                     interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                     break;
                 }
 
                 await checkinAllUsers();
-                //interaction.reply('All users checked in');
 
                 break;
             }
