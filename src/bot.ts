@@ -2,11 +2,8 @@ import {Client, GatewayIntentBits} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 
-import * as fs from 'fs';
-
 import {handleCommands, registerCommands} from './commands';
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
-import {Profile, User} from "./types";
 import {connectToDatabase} from "./database/dbConnection";
 
 

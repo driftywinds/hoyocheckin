@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node-dev src/bot.ts production",
+    "start": "node dist/bot.js production",
     "build": "tsc",
     "dev": "nodemon --exec ts-node-dev src/bot.ts development",
     "lint": "eslint . --ext .ts"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",
