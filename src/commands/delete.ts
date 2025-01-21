@@ -1,30 +1,34 @@
 import {
-    ActionRow,
-    ActionRowBuilder, ButtonBuilder, ButtonStyle,
+    ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle,
     CommandInteraction,
     EmbedBuilder,
-    Interaction,
-    StringSelectMenuBuilder,
+    StringSelectMenuBuilder, StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
+    MessageFlags
 } from 'discord.js';
 import {deleteProfile, findUserByDiscordId} from "../database/userRepository";
 import {User} from "../types";
 
+// Function to handle the delete profile command
 export async function deleteProfileCommand(interaction: CommandInteraction): Promise<void> {
 
+    // Find the user in the database
     const user: User | null = await findUserByDiscordId(interaction.user.id);
 
+    // Check if the user has any profiles to delete
     if(!user || user.profiles.length === 0){
         await interaction.reply({
-            content: 'You do not have any profiles to delete.'
+            content: 'You do not have any profiles to delete. Please create a profile first with the /register command.',
         });
         return;
     }
 
+    // Create the embed
     const embed = new EmbedBuilder()
         .setTitle('Delete Profile')
         .setColor(0xae1d00);
 
+    // Collect profile options
     const profileOptions: StringSelectMenuOptionBuilder[] = [];
 
     user.profiles.forEach(profile => {
@@ -35,6 +39,7 @@ export async function deleteProfileCommand(interaction: CommandInteraction): Pro
         );
     });
 
+    // Create the profile selector
     const profileSelector = new StringSelectMenuBuilder()
         .setCustomId('delete_profile_selector')
         .setPlaceholder('Select which profile to delete')
@@ -45,64 +50,43 @@ export async function deleteProfileCommand(interaction: CommandInteraction): Pro
     await interaction.reply({
         embeds: [embed],
         components: [actionRow],
-        options: { ephemeral: true }
+        flags: MessageFlags.Ephemeral
     });
 }
 
-export async function handleDeleteProfile(interaction: Interaction): Promise<void> {
-    if (!interaction.isStringSelectMenu()) return;
-
-    await interaction.message.delete();
+// Function to handle the delete profile selector
+export async function handleDeleteProfile(interaction: StringSelectMenuInteraction): Promise<void> {
 
     const nickname: string = interaction.values[0];
 
     // Confirm button
+    const confirmButtonId = `delete_profile_confirm:${nickname}`;
     const confirmButton = new ButtonBuilder()
-        .setCustomId('delete_profile_confirm')
+        .setCustomId(confirmButtonId)
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Danger);
 
-    // Cancel button
-    const cancelButton = new ButtonBuilder()
-        .setCustomId('delete_profile_cancel')
-        .setLabel('Cancel')
-        .setStyle(ButtonStyle.Secondary);
-
-    const confirmationButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton, cancelButton);
+    const confirmationButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton);
 
     await interaction.reply({
         content: `Are you sure you want to delete profile ${nickname}?`,
         components: [confirmationButtons],
-        options: { ephemeral: true }
+        flags: MessageFlags.Ephemeral
     });
 }
 
-export async function deleteProfileConfirm(interaction: Interaction): Promise<void> {
-    if (!interaction.isButton()) return;
+export async function deleteProfileConfirm(interaction: ButtonInteraction): Promise<void> {
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({
+        flags: MessageFlags.Ephemeral
+    });
 
-    // Delete the original message
-    await interaction.message.delete();
+    const nickname: string = interaction.customId.split(':')[1];
 
-    const nickname: string = interaction.message.content.split(' ')[8].slice(0, -1);
-
+    // Delete the profile from the database
     await deleteProfile(interaction.user.id, nickname);
 
     await interaction.editReply({
-        content: `Profile ${nickname} has been deleted.`,
-        options: { ephemeral: true }
-    });
-}
-
-export async function deleteProfileCancel(interaction: Interaction): Promise<void> {
-    if (!interaction.isButton()) return;
-
-    // Delete the original message
-    await interaction.message.delete();
-
-    // Send the follow-up message
-    await interaction.reply({
-        content: 'Profile deletion cancelled.',
+        content: `Profile ${nickname} has been deleted.`
     });
 }

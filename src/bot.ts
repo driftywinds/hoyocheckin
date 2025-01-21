@@ -13,7 +13,7 @@ import {handleStringSelectInteraction} from "./interactions/stringSelect";
 // Create client object and list intents
 const client = new Client({ intents: [
     GatewayIntentBits.Guilds, 
-    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.DirectMessages
 ]});
 
 // Process environment variables

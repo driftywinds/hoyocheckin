@@ -4,7 +4,8 @@ import {handleRegistrationSubmit} from "../commands/registration";
 export async function handleModalSubmit(interaction: Interaction): Promise<void> {
     if (!interaction.isModalSubmit()) return;
 
-    if (interaction.customId === 'registration_modal') {
+    // Check for dynamic modal IDs
+    if (interaction.customId.startsWith('registration_modal:')) {
         await handleRegistrationSubmit(interaction);
     }
 

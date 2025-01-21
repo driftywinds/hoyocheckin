@@ -5,7 +5,8 @@ import {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    ButtonStyle, Interaction
+    ButtonStyle, ButtonInteraction, ModalSubmitInteraction,
+    MessageFlags, ColorResolvable
 } from 'discord.js';
 import {Profile, UID, User} from "../types";
 import {findUserByDiscordId, saveUser} from "../database/userRepository";
@@ -15,6 +16,7 @@ import {getUserGenshinInfo} from "../games/genshin/getUserInfo_genshin";
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
+// Register command. Prompts the user with an embed and button to register.
 export async function registerCommand(interaction: CommandInteraction): Promise<void> {
 
     // Create registration instructions embed
@@ -23,6 +25,7 @@ export async function registerCommand(interaction: CommandInteraction): Promise<
         .setDescription(`Please follow the instructions in the link below to get your cookies:\n[Click here to view instructions](${INSTRUCTIONS_LINK})`)
         .setColor(0x00ae86);
 
+    // Button to open the registration modal
     const button = new ButtonBuilder()
         .setCustomId('open_registration_modal')
         .setLabel('Open Registration')
@@ -33,20 +36,20 @@ export async function registerCommand(interaction: CommandInteraction): Promise<
     // Send the embed with the button
     await interaction.reply({
         embeds: [embed],
-        components: [actionRow],
-        options: { ephemeral: true }
+        components: [actionRow]
     });
 }
 
-export async function openRegistrationModal(interaction: Interaction): Promise<void> {
-    if (!interaction.isButton()) return;
+// Opens the registration modal. After the user clicks the register button, this modal appears.
+export async function openRegistrationModal(interaction: ButtonInteraction): Promise<void> {
 
+    const modalId = `registration_modal:${interaction.message.id}`;
     // Create Modal
     const modal = new ModalBuilder()
-        .setCustomId('registration_modal')
+        .setCustomId(modalId)
         .setTitle('Registration Instructions');
 
-    // Add input component
+    // Input components
     const nicknameInput = new TextInputBuilder()
         .setCustomId('nickname')
         .setLabel('Nickname')
@@ -69,11 +72,17 @@ export async function openRegistrationModal(interaction: Interaction): Promise<v
     await interaction.showModal(modal);
 }
 
-export async function handleRegistrationSubmit(interaction: Interaction): Promise<void> {
-    if (!interaction.isModalSubmit()) return;
+// Handles the registration form submission. This function is called when the user submits the registration form.
+export async function handleRegistrationSubmit(interaction: ModalSubmitInteraction): Promise<void> {
 
-    await interaction.deferReply({});
+    // Defer the reply to prevent timeout
+    await interaction.deferReply({
+        flags: MessageFlags.Ephemeral
+    });
 
+    const originalMessageId = interaction.customId.split(':')[1];
+
+    // Try to register the user
     try {
         const discord_id: string = interaction.user.id;
 
@@ -87,9 +96,9 @@ export async function handleRegistrationSubmit(interaction: Interaction): Promis
         // Check for duplicate nickname
         if (profiles.some(profile => profile.nickname === nickname)) {
             await interaction.editReply({
-                content: 'A profile with the same nickname already exists. Please choose a different nickname.',
-                options: { ephemeral: true }
+                content: 'A profile with the same nickname already exists. Please choose a different nickname.'
             });
+            await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'A profile with the same nickname already exists. Please choose a different nickname.', 0xff0000, interaction);
             return;
         }
 
@@ -100,6 +109,7 @@ export async function handleRegistrationSubmit(interaction: Interaction): Promis
             cookieJSON[key] = value;
         });
 
+        // Final response to be sent to the user
         let finalResponse: string = "";
 
         // Fetch Genshin Impact data
@@ -141,10 +151,12 @@ export async function handleRegistrationSubmit(interaction: Interaction): Promis
             });
         }
 
+        // Check if any data was found
         if(genshinUIDs.length === 0 && hkstrUIDs.length === 0 && zenlessUIDs.length === 0) {
             await interaction.editReply({
                 content: 'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.',
             });
+            await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.', 0xff0000, interaction);
             return;
         }
 
@@ -158,6 +170,7 @@ export async function handleRegistrationSubmit(interaction: Interaction): Promis
             raw_cookie: cookies,
         };
 
+        // Save the user
         if (existingUser) {
             profiles.push(newProfile);
             existingUser.profiles = profiles;
@@ -170,21 +183,40 @@ export async function handleRegistrationSubmit(interaction: Interaction): Promis
                 profiles: [newProfile],
             };
             await saveUser(newUser);
-            finalResponse += 'Successfully registered your account.';
         }
-
-        const checkinTime: number = getNextDailyTimeInUTC();
-        finalResponse += `Your profile is enrolled to check-in everyday at <t:${checkinTime}:t>.\n`;
-        finalResponse += 'You can also manually check-in using the `/checkin` command.\n';
 
         // Edit the deferred reply with the final response
         await interaction.editReply({
-            content: finalResponse,
+            content: finalResponse
         });
+
+        // Update the original embed with the success message
+        const checkinTime: number = getNextDailyTimeInUTC();
+        let successDescription = "";
+        successDescription += `Your profile is enrolled to check in everyday at <t:${checkinTime}:t>.\n`;
+        successDescription += 'You can also manually check-in using the `/checkin` command.\n';
+        await updateOriginalEmbed(originalMessageId, '**Registration successful!**', successDescription, 0x00ff00, interaction);
+
     } catch (error) {
-        console.error(error);
         await interaction.editReply({
             content: 'An unexpected error occurred while processing your registration. Please try again later.',
+        });
+        await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'An unexpected error occurred while processing your registration. Please try again later.', 0xff0000, interaction);
+    }
+}
+
+// Function to update the original embed from the registration message
+async function updateOriginalEmbed(originalMessageId: string, title: string, description: string, color: ColorResolvable, interaction: ModalSubmitInteraction){
+    const originalMessage = await interaction.channel?.messages.fetch(originalMessageId);
+    if (originalMessage) {
+        const updatedEmbed = EmbedBuilder.from(originalMessage.embeds[0])
+            .setTitle(title)
+            .setDescription(description)
+            .setColor(color);
+
+        await originalMessage.edit({
+            embeds: [updatedEmbed],
+            components: []
         });
     }
 }
