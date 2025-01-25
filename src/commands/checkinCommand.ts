@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import {CommandInteraction, MessageFlags} from "discord.js";
 import { findUserByDiscordId } from "../database/userRepository";
 import { genshinCheckin } from "../games/genshin/checkin_genshin";
 import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
@@ -6,12 +6,18 @@ import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
 import {Profile, User} from "../types";
 
 export async function checkinCommand(interaction: CommandInteraction) {
+
+    await interaction.deferReply({
+        flags: MessageFlags.Ephemeral,
+    });
+
     try {
-        await interaction.reply({ content: 'Processing your check-in request...', ephemeral: true });
 
         const user: User | null = await findUserByDiscordId(interaction.user.id);
         if (!user) {
-            await interaction.followUp({ content: 'User not found. Please register first using /register', ephemeral: true });
+            await interaction.editReply({
+                content: 'User not found. Please register first using /register',
+            });
             return;
         }
 
@@ -19,7 +25,7 @@ export async function checkinCommand(interaction: CommandInteraction) {
 
         let response: string = "";
         for (const profile of profiles) {
-            response += `Checking in for ${profile.nickname}...\n`;
+            response += `**Checking in for ${profile.nickname}...**\n`;
 
             if (profile.genshin.length > 0) {
                 response += `Checking in for Genshin Impact...\n`;
@@ -33,17 +39,24 @@ export async function checkinCommand(interaction: CommandInteraction) {
                 response += `Checking in for Zenless Zone Zero...\n`;
                 response += await zzzCheckin(profile) + `\n`;
             }
+            response += '--------------\n';
         }
         response += 'Check-in completed.';
 
-        await interaction.followUp({ content: response, ephemeral: true });
+        await interaction.editReply({
+            content: response
+        });
 
     } catch (error) {
         console.error('Error during check-in process:', error);
         if (!interaction.replied && !interaction.deferred) {
-            await interaction.reply({ content: 'An error occurred during the check-in process. Please try again later.', ephemeral: true });
+            await interaction.editReply({
+                content: 'An error occurred during the check-in process. Please try again later.'
+            });
         } else {
-            await interaction.followUp({ content: 'An error occurred during the check-in process. Please try again later.', ephemeral: true });
+            await interaction.editReply({
+                content: 'An error occurred during the check-in process. Please try again later.'
+            });
         }
     }
 }
