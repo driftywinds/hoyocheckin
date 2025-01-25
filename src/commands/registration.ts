@@ -1,28 +1,32 @@
 import {
-    ActionRowBuilder, ButtonBuilder,
-    CommandInteraction, EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    CommandInteraction,
+    EmbedBuilder,
     ModalActionRowComponentBuilder,
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    ButtonStyle, ButtonInteraction, ModalSubmitInteraction,
-    MessageFlags, ColorResolvable
+    ButtonStyle,
+    ButtonInteraction,
+    ModalSubmitInteraction,
+    MessageFlags,
+    ColorResolvable,
 } from 'discord.js';
-import {Profile, UID, User} from "../types";
-import {findUserByDiscordId, saveUser} from "../database/userRepository";
-import {getUserZenlessInfo} from "../games/zenless_zone_zero/getUserInfo_zenless";
-import {getUserStarrailInfo} from "../games/hk_starrail/getUserInfo_hkstr";
-import {getUserGenshinInfo} from "../games/genshin/getUserInfo_genshin";
+import { Profile, User } from '../types';
+import { findUserByDiscordId, saveUser } from '../database/userRepository';
+import { fetchGameData, parseCookies } from '../hoyolab/profileUtils';
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
 // Register command. Prompts the user with an embed and button to register.
 export async function registerCommand(interaction: CommandInteraction): Promise<void> {
-
     // Create registration instructions embed
     const embed = new EmbedBuilder()
         .setTitle('Registration Instructions')
-        .setDescription(`Please follow the instructions in the link below to get your cookies:\n[Click here to view instructions](${INSTRUCTIONS_LINK})`)
+        .setDescription(
+            `Please follow the instructions in the link below to get your cookies:\n[Click here to view instructions](${INSTRUCTIONS_LINK})`
+        )
         .setColor(0x00ae86);
 
     // Button to open the registration modal
@@ -36,14 +40,14 @@ export async function registerCommand(interaction: CommandInteraction): Promise<
     // Send the embed with the button
     await interaction.reply({
         embeds: [embed],
-        components: [actionRow]
+        components: [actionRow],
     });
 }
 
 // Opens the registration modal. After the user clicks the register button, this modal appears.
 export async function openRegistrationModal(interaction: ButtonInteraction): Promise<void> {
-
     const modalId = `registration_modal:${interaction.message.id}`;
+
     // Create Modal
     const modal = new ModalBuilder()
         .setCustomId(modalId)
@@ -74,100 +78,64 @@ export async function openRegistrationModal(interaction: ButtonInteraction): Pro
 
 // Handles the registration form submission. This function is called when the user submits the registration form.
 export async function handleRegistrationSubmit(interaction: ModalSubmitInteraction): Promise<void> {
-
-    // Defer the reply to prevent timeout
     await interaction.deferReply({
-        flags: MessageFlags.Ephemeral
+        flags: MessageFlags.Ephemeral,
     });
 
     const originalMessageId = interaction.customId.split(':')[1];
 
-    // Try to register the user
     try {
-        const discord_id: string = interaction.user.id;
+        const discordId: string = interaction.user.id;
 
         // Check if the user already has an account
-        const existingUser: User | null = await findUserByDiscordId(discord_id);
-        const profiles: Profile[] = existingUser?.profiles || [];
+        const existingUser: User | null = await findUserByDiscordId(discordId);
+        const profiles = existingUser?.profiles || [];
 
         const nickname: string = interaction.fields.getTextInputValue('nickname');
-        const cookies: string = interaction.fields.getTextInputValue('cookies');
+        const rawCookies: string = interaction.fields.getTextInputValue('cookies');
 
         // Check for duplicate nickname
         if (profiles.some(profile => profile.nickname === nickname)) {
             await interaction.editReply({
-                content: 'A profile with the same nickname already exists. Please choose a different nickname.'
+                content: 'A profile with the same nickname already exists. Please choose a different nickname.',
             });
-            await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'A profile with the same nickname already exists. Please choose a different nickname.', 0xff0000, interaction);
+            await updateOriginalEmbed(
+                originalMessageId,
+                '**Registration failed!**',
+                'A profile with the same nickname already exists. Please choose a different nickname.',
+                0xff0000,
+                interaction
+            );
             return;
         }
 
-        // Translate cookies into JSON
-        const cookiePairs = cookies?.split(';').map(pair => pair.trim().split('='));
-        const cookieJSON: Record<string, string> = {};
-        cookiePairs?.forEach(([key, value]) => {
-            cookieJSON[key] = value;
-        });
+        // Parse cookies and fetch game data
+        const parsedCookies = parseCookies(rawCookies);
+        const { genshinUIDs, hkstrUIDs, zenlessUIDs, responseMessage } = await fetchGameData(rawCookies);
 
-        // Final response to be sent to the user
-        let finalResponse: string = "";
-
-        // Fetch Genshin Impact data
-        console.log('--Fetching Genshin Impact Data');
-        const genshinUIDs: UID[] = await getUserGenshinInfo(cookies);
-
-        if (genshinUIDs.length > 0) {
-            finalResponse += 'Found the following Genshin Impact data:\n\n';
-            genshinUIDs.forEach(uid => {
-                finalResponse += `Region: **${uid.region_name}**\n`;
-                finalResponse += `Nickname: **${uid.nickname}**\n`;
-                finalResponse += `Level: **${uid.level}**\n\n`;
-            });
-        }
-
-        // Fetch Honkai Starrail data
-        console.log('--Fetching Honkai Starrail Data');
-        const hkstrUIDs: UID[] = await getUserStarrailInfo(cookies);
-
-        if (hkstrUIDs.length > 0) {
-            finalResponse += 'Found the following Honkai Starrail data:\n\n';
-            hkstrUIDs.forEach(uid => {
-                finalResponse += `Region: **${uid.region_name}**\n`;
-                finalResponse += `Nickname: **${uid.nickname}**\n`;
-                finalResponse += `Level: **${uid.level}**\n\n`;
-            });
-        }
-
-        // Fetch Zenless Zone Zero data
-        console.log('--Fetching Zenless Zone Zero Data');
-        const zenlessUIDs: UID[] = await getUserZenlessInfo(cookies);
-
-        if (zenlessUIDs.length > 0) {
-            finalResponse += 'Found the following Zenless Zone Zero data:\n\n';
-            zenlessUIDs.forEach(uid => {
-                finalResponse += `Region: **${uid.region_name}**\n`;
-                finalResponse += `Nickname: **${uid.nickname}**\n`;
-                finalResponse += `Level: **${uid.level}**\n\n`;
-            });
-        }
-
-        // Check if any data was found
-        if(genshinUIDs.length === 0 && hkstrUIDs.length === 0 && zenlessUIDs.length === 0) {
+        if (genshinUIDs.length === 0 && hkstrUIDs.length === 0 && zenlessUIDs.length === 0) {
             await interaction.editReply({
-                content: 'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.',
+                content:
+                    'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.',
             });
-            await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.', 0xff0000, interaction);
+            await updateOriginalEmbed(
+                originalMessageId,
+                '**Registration failed!**',
+                'No data was found for the cookies provided. Please ensure that the cookies are correct.\nIf you are still facing issues, try logging out and logging back into Hoyolab.',
+                0xff0000,
+                interaction
+            );
             return;
         }
 
         // Create the new profile
         const newProfile: Profile = {
-            nickname: nickname,
+            nickname,
             genshin: genshinUIDs,
             hk_str: hkstrUIDs,
             zzz: zenlessUIDs,
-            pasted_cookie: cookieJSON,
-            raw_cookie: cookies,
+            pasted_cookie: parsedCookies,
+            raw_cookie: rawCookies,
         };
 
         // Save the user
@@ -175,38 +143,40 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
             profiles.push(newProfile);
             existingUser.profiles = profiles;
             await saveUser(existingUser);
-            finalResponse += 'Successfully added the new profile to your account.';
         } else {
             const newUser: User = {
                 username: interaction.user.username,
-                discord_id: discord_id,
+                discord_id: discordId,
                 profiles: [newProfile],
             };
             await saveUser(newUser);
         }
 
-        // Edit the deferred reply with the final response
+        // Respond with success
+        const checkinTime: number = getNextDailyTimeInUTC();
+        const successDescription = `Your profile is enrolled to check in every day at <t:${checkinTime}:t>.\nYou can also manually check-in using the \`/checkin\` command.`;
+
         await interaction.editReply({
-            content: finalResponse
+            content: `Successfully registered the profile \`${nickname}\`.\n\n${responseMessage}`,
         });
 
-        // Update the original embed with the success message
-        const checkinTime: number = getNextDailyTimeInUTC();
-        let successDescription = "";
-        successDescription += `Your profile is enrolled to check in everyday at <t:${checkinTime}:t>.\n`;
-        successDescription += 'You can also manually check-in using the `/checkin` command.\n';
         await updateOriginalEmbed(originalMessageId, '**Registration successful!**', successDescription, 0x00ff00, interaction);
-
     } catch (error) {
+        console.error('Error during registration:', error);
         await interaction.editReply({
             content: 'An unexpected error occurred while processing your registration. Please try again later.',
         });
-        await updateOriginalEmbed(originalMessageId, '**Registration failed!**', 'An unexpected error occurred while processing your registration. Please try again later.', 0xff0000, interaction);
     }
 }
 
 // Function to update the original embed from the registration message
-async function updateOriginalEmbed(originalMessageId: string, title: string, description: string, color: ColorResolvable, interaction: ModalSubmitInteraction){
+async function updateOriginalEmbed(
+    originalMessageId: string,
+    title: string,
+    description: string,
+    color: ColorResolvable,
+    interaction: ModalSubmitInteraction
+) {
     const originalMessage = await interaction.channel?.messages.fetch(originalMessageId);
     if (originalMessage) {
         const updatedEmbed = EmbedBuilder.from(originalMessage.embeds[0])
@@ -216,24 +186,22 @@ async function updateOriginalEmbed(originalMessageId: string, title: string, des
 
         await originalMessage.edit({
             embeds: [updatedEmbed],
-            components: []
+            components: [],
         });
     }
 }
 
-// Function to calculate the next 12:07 EST in UTC
+// Function to calculate the next 12:07 PM EST in UTC
 function getNextDailyTimeInUTC(): number {
     const now = new Date();
+    const targetHourEST = 12;
+    const targetMinute = 7;
+    const estOffset = 5;
 
-    // Calculate 12:07 PM EST in UTC
-    const targetHourEST = 12; // 12 PM EST
-    const targetMinute = 7; // 07 minutes
-    const estOffset = 5; // EST is UTC-5
+    const targetTime = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), targetHourEST + estOffset, targetMinute, 0)
+    );
 
-    // Create a Date object for today at 12:07 PM EST
-    const targetTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), targetHourEST + estOffset, targetMinute, 0));
-
-    // If the target time has already passed today, schedule for tomorrow
     if (targetTime.getTime() < now.getTime()) {
         targetTime.setUTCDate(targetTime.getUTCDate() + 1);
     }

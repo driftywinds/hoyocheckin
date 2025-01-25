@@ -1,4 +1,4 @@
-import { Interaction ,REST, Routes, ApplicationCommandType } from 'discord.js';
+import {Interaction, REST, Routes, ApplicationCommandType, ChatInputCommandInteraction} from 'discord.js';
 
 import {registerCommand} from '../commands/registration';
 import {checkinCommand} from "../commands/checkinCommand";
@@ -8,6 +8,8 @@ import {getTime} from "../bot";
 
 import {config} from "../bot";
 import {deleteProfileCommand} from "../commands/delete";
+import {listProfilesCommand} from "../commands/listProfiles";
+import {updateProfileCommand} from "../commands/updateProfile";
 
 const commands = [
     {
@@ -20,7 +22,41 @@ const commands = [
         name: 'delete',
         description: 'Delete your a profile',
         type: ApplicationCommandType.ChatInput,
+        options: [
+            {
+                name: 'profile',
+                description: 'The profile you want to delete',
+                type: 3,
+                required: true,
+            }
+        ],
         cooldown: 10,
+    },
+    {
+        name: 'list_profiles',
+        description: 'List all your profiles',
+        type: ApplicationCommandType.ChatInput,
+        cooldown: 10,
+    },
+    {
+        name: 'update_profile',
+        description: 'Update your profile with new cookies',
+        type: ApplicationCommandType.ChatInput,
+        options: [
+            {
+                name: 'profile',
+                description: 'The profile you want to update',
+                type: 3,
+                required: true,
+            },
+            {
+                name: 'cookies',
+                description: 'The new cookies you want to set',
+                type: 3,
+                required: true,
+            }
+        ],
+        cooldown: 30,
     },
     {
         name: 'checkin_all',
@@ -50,6 +86,7 @@ export const registerCommands = async (clientId: string, token: string) => {
         }
     })();
 };
+
 
 const cooldowns = new Map<string, Map<string, number>>();
 
@@ -98,7 +135,21 @@ export async function handleCommands(interaction: Interaction) {
 
         // delete command
         case 'delete': {
-            await deleteProfileCommand(interaction);
+            await deleteProfileCommand(interaction as ChatInputCommandInteraction);
+
+            break;
+        }
+
+        // updateProfile command
+        case 'update_profile': {
+            await updateProfileCommand(interaction as ChatInputCommandInteraction);
+
+            break;
+        }
+
+        // listProfiles command
+        case 'list_profiles': {
+            await listProfilesCommand(interaction);
 
             break;
         }

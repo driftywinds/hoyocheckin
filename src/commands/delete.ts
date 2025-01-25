@@ -1,76 +1,45 @@
 import {
-    ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle,
-    CommandInteraction,
+    ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction,
     EmbedBuilder,
-    StringSelectMenuBuilder, StringSelectMenuInteraction,
-    StringSelectMenuOptionBuilder,
     MessageFlags
 } from 'discord.js';
 import {deleteProfile, findUserByDiscordId} from "../database/userRepository";
 import {User} from "../types";
 
 // Function to handle the delete profile command
-export async function deleteProfileCommand(interaction: CommandInteraction): Promise<void> {
+export async function deleteProfileCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+
+
+    const profileName: string = interaction.options.getString('profile', true);
 
     // Find the user in the database
     const user: User | null = await findUserByDiscordId(interaction.user.id);
 
-    // Check if the user has any profiles to delete
-    if(!user || user.profiles.length === 0){
+    // Check if the user has the specified profile to delete
+    if (!user || !user.profiles.some(profile => profile.nickname === profileName)) {
         await interaction.reply({
-            content: 'You do not have any profiles to delete. Please create a profile first with the /register command.',
+            content: `You do not have a profile named \`${profileName}\`.`,
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
 
     // Create the embed
     const embed = new EmbedBuilder()
-        .setTitle('Delete Profile')
+        .setTitle(`Are you sure you want to delete the profile, \`${profileName}?\``)
         .setColor(0xae1d00);
 
-    // Collect profile options
-    const profileOptions: StringSelectMenuOptionBuilder[] = [];
-
-    user.profiles.forEach(profile => {
-        profileOptions.push(
-            new StringSelectMenuOptionBuilder()
-                .setLabel(profile.nickname)
-                .setValue(profile.nickname)
-        );
-    });
-
-    // Create the profile selector
-    const profileSelector = new StringSelectMenuBuilder()
-        .setCustomId('delete_profile_selector')
-        .setPlaceholder('Select which profile to delete')
-        .addOptions(profileOptions);
-
-    const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(profileSelector);
-
-    await interaction.reply({
-        embeds: [embed],
-        components: [actionRow],
-        flags: MessageFlags.Ephemeral
-    });
-}
-
-// Function to handle the delete profile selector
-export async function handleDeleteProfile(interaction: StringSelectMenuInteraction): Promise<void> {
-
-    const nickname: string = interaction.values[0];
-
-    // Confirm button
-    const confirmButtonId = `delete_profile_confirm:${nickname}`;
+    const confirmButtonId: string = `delete_profile_confirm:${profileName}`;
     const confirmButton = new ButtonBuilder()
         .setCustomId(confirmButtonId)
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Danger);
 
-    const confirmationButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton);
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton);
 
     await interaction.reply({
-        content: `Are you sure you want to delete profile ${nickname}?`,
-        components: [confirmationButtons],
+        embeds: [embed],
+        components: [actionRow],
         flags: MessageFlags.Ephemeral
     });
 }
