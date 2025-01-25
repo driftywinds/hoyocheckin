@@ -53,3 +53,9 @@ export const deleteProfile = async (discordId: string, nickname: string): Promis
         {$pull: {profiles: {nickname: nickname}}}
     );
 };
+
+// Function to get total number of users
+export const getTotalUsers = async (): Promise<number> => {
+    await initUsersCollection();
+    return await usersCollection.countDocuments();
+};

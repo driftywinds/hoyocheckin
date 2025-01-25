@@ -1,4 +1,4 @@
-import {CommandInteraction, Embed, EmbedBuilder, MessageFlags} from 'discord.js';
+import {CommandInteraction, EmbedBuilder, MessageFlags} from 'discord.js';
 import { findUserByDiscordId } from '../database/userRepository';
 import {Profile, UID, User} from '../types';
 

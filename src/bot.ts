@@ -8,6 +8,7 @@ import {handleButtonInteraction} from "./interactions/buttons";
 import {handleCommands, registerCommands} from './interactions/commands';
 import {handleModalSubmit} from "./interactions/modalSubmit";
 import {handleStringSelectInteraction} from "./interactions/stringSelect";
+import {getTotalUsers} from "./database/userRepository";
 
 
 // Create client object and list intents
@@ -50,11 +51,34 @@ client.on('ready', async () => {
 
     handleInteractions(client);
 
+    await updateStatus();
+
+    // Update bot status periodically
+    setInterval(async () => {
+        await updateStatus();
+    }, 300000);
+
     // Schedule Daily checkin task
     console.log('Scheduling daily check-in task...');
     await scheduleDailyTask(12, 7);
     console.log('Daily check-in task scheduled.');
 });
+
+async function updateStatus() {
+    const guildCount = client.guilds.cache.size;
+    const userCount = await getTotalUsers();
+
+    // Set the bot's status
+    client.user?.setPresence({
+        activities: [
+            { name: `${guildCount} servers | ${userCount} users`, type: 3 },
+        ],
+        status: 'online',
+    });
+
+    console.log(`Updated status: ${guildCount} servers, ${userCount} users`);
+}
+
 
 // Timing functions
 
