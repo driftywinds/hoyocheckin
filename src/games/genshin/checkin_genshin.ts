@@ -1,4 +1,5 @@
 import {Profile} from "../../types";
+import logger from "../../logger";
 
 export async function genshinCheckin(profile: Profile): Promise<string> {
 
@@ -35,7 +36,7 @@ export async function genshinCheckin(profile: Profile): Promise<string> {
 
         return `Check-in completed for ${nickname}` + `\n${checkInResult}` + '\n';
     } catch (error) {
-        console.error('Error during fetch:', error);
+        logger.error('Error during fetch:', error);
         return `Error during fetch for ${nickname}: `;
     }
 }

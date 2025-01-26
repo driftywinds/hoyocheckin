@@ -1,15 +1,15 @@
-import {Interaction, REST, Routes, ApplicationCommandType, ChatInputCommandInteraction} from 'discord.js';
+import {Interaction, REST, Routes, ApplicationCommandType, ChatInputCommandInteraction, MessageFlags} from 'discord.js';
 
 import {registerCommand} from '../commands/registration';
 import {checkinCommand} from "../commands/checkinCommand";
 
 import { checkinAllUsers } from '../hoyolab/checkinAllUsers';
-import {getTime} from "../bot";
 
 import {config} from "../bot";
 import {deleteProfileCommand} from "../commands/delete";
 import {listProfilesCommand} from "../commands/listProfiles";
 import {updateProfileCommand} from "../commands/updateProfile";
+import logger from "../logger";
 
 const commands = [
     {
@@ -82,7 +82,7 @@ export const registerCommands = async (clientId: string, token: string) => {
                 {body: commands},
             );
         } catch (error) {
-            console.error(error);
+            logger.error(error);
         }
     })();
 };
@@ -92,8 +92,7 @@ const cooldowns = new Map<string, Map<string, number>>();
 
 export async function handleCommands(interaction: Interaction) {
     if (!interaction.isCommand()) return;
-    const time: string = getTime();
-    console.log(`${time}| Received command ${interaction.commandName} from ${interaction.user.tag}`);
+    logger.info(`Received command ${interaction.commandName} from ${interaction.user.tag}`);
 
     const command = commands.find(cmd => cmd.name === interaction.commandName);
     if (!command) {
@@ -115,7 +114,10 @@ export async function handleCommands(interaction: Interaction) {
 
             if (now < expirationTime) {
                 const timeLeft: number = (expirationTime - now) / 1000;
-                await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${interaction.commandName}\` command.`, ephemeral: true });
+                await interaction.reply({
+                    content: `Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${interaction.commandName}\` command.`,
+                    flags: MessageFlags.Ephemeral
+                });
                 return;
             }
         }
@@ -175,7 +177,7 @@ export async function handleCommands(interaction: Interaction) {
         }
 
         default:
-            console.error(`Unknown command ${interaction.commandName}`);
+            logger.error(`Unknown command ${interaction.commandName}`);
     }
 }
 

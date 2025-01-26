@@ -1,13 +1,13 @@
 import {Client, GatewayIntentBits, Interaction} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
+import logger from "./logger";
 
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
 import {connectToDatabase} from "./database/dbConnection";
 import {handleButtonInteraction} from "./interactions/buttons";
 import {handleCommands, registerCommands} from './interactions/commands';
 import {handleModalSubmit} from "./interactions/modalSubmit";
-import {handleStringSelectInteraction} from "./interactions/stringSelect";
 import {getTotalUsers} from "./database/userRepository";
 
 
@@ -21,7 +21,7 @@ const client = new Client({ intents: [
 const environment: string = process.argv[2] || 'development';
 dotenv.config({ path: `.env.${environment}` });
 
-console.log(`Loaded environment file: .env.${environment}`);
+logger.info(`Loaded environment file: .env.${environment}`);
 
 // Bot environment variables
 export const config = {
@@ -33,21 +33,21 @@ export const config = {
 }
 
 if(!config.TOKEN || !config.CLIENT_ID || !config.BOT_ADMIN_ID || !config.MONGO_URI || !config.DATABASE_NAME){
-    console.error('Missing environment variables');
+    logger.error('Missing environment variables');
     process.exit(1);
 }
 
 // When ready
 client.on('ready', async () => {
     // Connect to MongoDB
-    console.log('Initializing database connection...');
+    logger.info('Initializing database connection...');
     await connectToDatabase(config.MONGO_URI, config.DATABASE_NAME);
-    console.log('Database connection established.');
+    logger.info('Database connection established.');
 
     // Register slash commands
-    console.log('Registering slash commands...');
+    logger.info('Registering slash commands...');
     await registerCommands(config.CLIENT_ID, config.TOKEN);
-    console.log('Slash commands registered.');
+    logger.info('Slash commands registered.');
 
     handleInteractions(client);
 
@@ -59,9 +59,9 @@ client.on('ready', async () => {
     }, 300000);
 
     // Schedule Daily checkin task
-    console.log('Scheduling daily check-in task...');
+    logger.info('Scheduling daily check-in task...');
     await scheduleDailyTask(12, 7);
-    console.log('Daily check-in task scheduled.');
+    logger.info('Daily check-in task scheduled.');
 });
 
 async function updateStatus() {
@@ -76,7 +76,7 @@ async function updateStatus() {
         status: 'online',
     });
 
-    console.log(`Updated status: ${guildCount} servers, ${userCount} users`);
+    logger.info(`Updated status: ${guildCount} servers, ${userCount} users`);
 }
 
 
@@ -87,7 +87,7 @@ async function scheduleDailyTask(hour: number, minute: number) {
     const time = `${minute} ${hour} * * *`;
 
     cron.schedule(time, async () => {
-        console.log(`Task running at ${hour}:${minute}`);
+        logger.info(`Task running at ${hour}:${minute}`);
         await checkinAllUsers();
     }, {
         scheduled: true,
@@ -95,24 +95,8 @@ async function scheduleDailyTask(hour: number, minute: number) {
     });
 }
 
-export function getTime(): string {
-    const timestamp = Date.now();
-    const date = new Date(timestamp);
-
-    // Use Date methods to format the date and time components
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-}
-
 client.login(config.TOKEN).then(() => {
-    console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
+   logger.info(`Logged in as ${client.user?.tag}!`);
 });
 
 // Interaction Handling
@@ -125,8 +109,6 @@ export const handleInteractions = (client: Client): void => {
             await handleCommands(interaction);
         }else if(interaction.isModalSubmit()){
             await handleModalSubmit(interaction);
-        }else if(interaction.isStringSelectMenu()){
-            await handleStringSelectInteraction(interaction);
         }
     });
 }

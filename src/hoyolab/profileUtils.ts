@@ -3,6 +3,7 @@ import { getUserGenshinInfo } from '../games/genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../games/hk_starrail/getUserInfo_hkstr';
 import { getUserZenlessInfo } from '../games/zenless_zone_zero/getUserInfo_zenless';
 import { UID, User } from '../types';
+import logger from "../logger";
 
 /**
  * Retrieve a user's profile by Discord ID and nickname.
@@ -42,7 +43,7 @@ export function parseCookies(rawCookie: string): Record<string, string> {
 export async function fetchGameData(cookies: string): Promise<{ genshinUIDs: UID[]; hkstrUIDs: UID[]; zenlessUIDs: UID[]; responseMessage: string }> {
     let responseMessage = '';
 
-    console.log('--Fetching Genshin Impact Data');
+    logger.info('--Fetching Genshin Impact Data');
     const genshinUIDs = await getUserGenshinInfo(cookies);
     if (genshinUIDs.length > 0) {
         responseMessage += 'Found the following Genshin Impact data:\n\n';
@@ -51,7 +52,7 @@ export async function fetchGameData(cookies: string): Promise<{ genshinUIDs: UID
         });
     }
 
-    console.log('--Fetching Honkai Starrail Data');
+    logger.info('--Fetching Honkai Starrail Data');
     const hkstrUIDs = await getUserStarrailInfo(cookies);
     if (hkstrUIDs.length > 0) {
         responseMessage += 'Found the following Honkai Starrail data:\n\n';
@@ -60,7 +61,7 @@ export async function fetchGameData(cookies: string): Promise<{ genshinUIDs: UID
         });
     }
 
-    console.log('--Fetching Zenless Zone Zero Data');
+    logger.info('--Fetching Zenless Zone Zero Data');
     const zenlessUIDs = await getUserZenlessInfo(cookies);
     if (zenlessUIDs.length > 0) {
         responseMessage += 'Found the following Zenless Zone Zero data:\n\n';

@@ -1,13 +1,14 @@
 import {MongoClient, Db} from 'mongodb';
+import logger from "../logger";
 
 let db: Db;
 export const connectToDatabase = async (MONGO_URI: string, DATABASE_NAME: string): Promise<Db> => {
     if(!db){
-        console.log('Connecting to MongoDB...');
+        logger.info('Connecting to MongoDB...');
         const client: MongoClient = new MongoClient(MONGO_URI);
         await client.connect();
         db = client.db(DATABASE_NAME);
-        console.log(`Connected to MongoDB. Database: ${DATABASE_NAME}`);
+        logger.info(`Connected to MongoDB. Database: ${DATABASE_NAME}`);
     }
     return db;
 }

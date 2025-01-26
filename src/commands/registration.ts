@@ -16,6 +16,7 @@ import {
 import { Profile, User } from '../types';
 import { findUserByDiscordId, saveUser } from '../database/userRepository';
 import { fetchGameData, parseCookies } from '../hoyolab/profileUtils';
+import logger from "../logger";
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
@@ -162,7 +163,7 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
 
         await updateOriginalEmbed(originalMessageId, '**Registration successful!**', successDescription, 0x00ff00, interaction);
     } catch (error) {
-        console.error('Error during registration:', error);
+        logger.error('Error during registration:', error);
         await interaction.editReply({
             content: 'An unexpected error occurred while processing your registration. Please try again later.',
         });

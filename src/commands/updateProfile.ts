@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { saveUser } from '../database/userRepository';
 import { fetchGameData, getUserProfile, parseCookies } from '../hoyolab/profileUtils';
+import logger from "../logger";
 
 export async function updateProfileCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -42,7 +43,7 @@ export async function updateProfileCommand(interaction: ChatInputCommandInteract
         await saveUser(user);
         await interaction.editReply({ content: `Profile \`${profileName}\` updated successfully.\n\n${responseMessage}` });
     } catch (error) {
-        console.error('Error updating profile:', error);
+        logger.error('Error updating profile:', error);
         await interaction.editReply({ content: 'An error occurred while updating the profile. Please try again later.' });
     }
 }
