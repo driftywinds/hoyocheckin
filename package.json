@@ -7,7 +7,7 @@
     "start": "node dist/bot.js production",
     "build": "rm -rf dist && tsc",
     "dev": "nodemon --exec ts-node-dev src/bot.ts development",
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "jest test",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [],
