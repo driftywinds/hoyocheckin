@@ -11,9 +11,8 @@ app.get('/metrics', async (_req, res) => {
 
 // Start the server
 export const startMetricsServer = (PORT: number) => {
-    const environment: string = process.argv[2] || 'development';
 
-    if(environment === 'test'){
+    if(process.env.NODE_ENV !== "test"){
         return;
     }
 

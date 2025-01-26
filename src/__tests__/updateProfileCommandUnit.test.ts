@@ -6,6 +6,12 @@ jest.mock('../hoyolab/profileUtils', () => ({
     fetchGameData: jest.fn(),
     getUserProfile: jest.fn(),
 }));
+jest.mock('../database/metricsRepository', () => ({
+    updateMetric: jest.fn(),
+    incrementMetric: jest.fn(),
+    decrementMetric: jest.fn(),
+    initMetricsCollection: jest.fn(),
+}));
 
 import { updateProfileCommand } from '../commands/updateProfile';
 import { saveUser } from '../database/userRepository';

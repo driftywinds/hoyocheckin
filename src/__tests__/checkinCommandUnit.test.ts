@@ -10,6 +10,12 @@ jest.mock('../games/zenless_zone_zero/checkin_zenless', () => ({
 jest.mock('../database/userRepository', () => ({
     findUserByDiscordId: jest.fn(),
 }));
+jest.mock('../database/metricsRepository', () => ({
+    updateMetric: jest.fn(),
+    incrementMetric: jest.fn(),
+    decrementMetric: jest.fn(),
+    initMetricsCollection: jest.fn(),
+}));
 
 import { checkinCommand } from '../commands/checkinCommand';
 import { genshinCheckin } from '../games/genshin/checkin_genshin';

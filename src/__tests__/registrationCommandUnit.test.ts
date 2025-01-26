@@ -6,6 +6,12 @@ jest.mock('../hoyolab/profileUtils', () => ({
     parseCookies: jest.fn(),
     fetchGameData: jest.fn(),
 }));
+jest.mock('../database/metricsRepository', () => ({
+    updateMetric: jest.fn(),
+    incrementMetric: jest.fn(),
+    decrementMetric: jest.fn(),
+    initMetricsCollection: jest.fn(),
+}));
 
 import { registerCommand, handleRegistrationSubmit } from '../commands/registration';
 import { findUserByDiscordId, saveUser } from '../database/userRepository';

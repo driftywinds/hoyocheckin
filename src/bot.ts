@@ -54,8 +54,10 @@ client.on('ready', async () => {
 
     handleInteractions(client);
 
-    startMetricsServer(config.METRICS_PORT as number);
-    await initMetrics();
+    if(process.env.NODE_ENV !== "test") {
+        startMetricsServer(config.METRICS_PORT as number);
+        await initMetrics();
+    }
 
     await updateStatus();
 
