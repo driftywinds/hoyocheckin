@@ -1,14 +1,13 @@
 import {Profile} from "../../types";
 
 export async function genshinCheckin(profile: Profile): Promise<string> {
-    
+
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
     const nickname = profile.nickname;
     const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
 
     if (!url) {
         return `Check-in skipped for ${nickname}: Genshin Impact check-in is disabled.`;
-        
     }
 
     const header = {
@@ -22,12 +21,12 @@ export async function genshinCheckin(profile: Profile): Promise<string> {
         'Referer': 'https://act.hoyolab.com/',
         'Origin': 'https://act.hoyolab.com',
     };
-    
+
     const options: RequestInit = {
         method: 'POST',
         headers: header,
     };
-  
+
     // Check-in the profile
     try {
         const hoyolabResponse: Response = await fetch(url, options);
