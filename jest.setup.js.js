@@ -1,2 +1,2 @@
-jest.setTimeout(30000);
+jest.setTimeout(15000);
 process.env.NODE_ENV = "test";
