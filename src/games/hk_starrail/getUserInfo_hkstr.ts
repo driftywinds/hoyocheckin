@@ -35,7 +35,7 @@ export async function getUserStarrailInfo(cookie: string): Promise<UID[]> {
                 logger.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 logger.error('Error response:', errorResponseText);
-                trackError('getUserStarrailInfo.failedRequest');
+                await trackError('getUserStarrailInfo.failedRequest');
                 continue; 
             }
 
@@ -62,7 +62,7 @@ export async function getUserStarrailInfo(cookie: string): Promise<UID[]> {
         return successfulRegions;
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('getUserStarrailInfo');
+        await trackError('getUserStarrailInfo');
         return [];
     }
 }

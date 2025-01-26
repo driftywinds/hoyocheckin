@@ -38,7 +38,7 @@ export async function hkstrCheckin(profile: Profile): Promise<string> {
         return `Check-in completed for ${username}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('hkstrCheckin');
+        await trackError('hkstrCheckin');
         return `Error during fetch for ${username}: `;
     }
 }

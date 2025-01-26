@@ -21,8 +21,7 @@ import {
     incrementDuplicateName,
     incrementInvalidCookies,
     incrementSuccessfullRegister,
-    incrementTotalProfiles,
-    updateTotalUsers
+    incrementTotalProfiles
 } from "../utils/metrics";
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
@@ -115,7 +114,7 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
                 interaction
             );
 
-            incrementDuplicateName();
+            await incrementDuplicateName();
             return;
         }
 
@@ -136,7 +135,7 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
                 interaction
             );
 
-            incrementInvalidCookies();
+            await incrementInvalidCookies();
             return;
         }
 
@@ -163,8 +162,8 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
             };
             await saveUser(newUser);
         }
-        incrementTotalProfiles();
-        incrementSuccessfullRegister();
+        await incrementTotalProfiles();
+        await incrementSuccessfullRegister();
 
         // Respond with success
         const checkinTime: number = getNextDailyTimeInUTC();

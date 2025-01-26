@@ -65,7 +65,7 @@ export async function deleteProfileConfirm(interaction: ButtonInteraction): Prom
     // Delete the profile from the database
     await deleteProfile(interaction.user.id, nickname);
 
-    decrementTotalProfiles();
+    await decrementTotalProfiles();
 
     await interaction.editReply({
         content: `Profile ${nickname} has been deleted.`

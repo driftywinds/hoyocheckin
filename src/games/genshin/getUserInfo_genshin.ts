@@ -35,7 +35,7 @@ export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
                 logger.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 logger.error('Error response:', errorResponseText);
-                trackError('getUserGenshinInfo.failedRequest');
+                await trackError('getUserGenshinInfo.failedRequest');
                 continue; 
             }
 
@@ -62,7 +62,7 @@ export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
         return successfulRegions;
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('getUserGenshinInfo');
+        await trackError('getUserGenshinInfo');
         return [];
     }
 }

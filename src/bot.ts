@@ -9,7 +9,7 @@ import {handleButtonInteraction} from "./interactions/buttons";
 import {handleCommands, registerCommands} from './interactions/commands';
 import {handleModalSubmit} from "./interactions/modalSubmit";
 import {getTotalUsers} from "./database/userRepository";
-import {updateBotHeartbeat, updateTotalGuilds, updateTotalUsers} from "./utils/metrics";
+import {initMetrics, updateBotHeartbeat, updateTotalGuilds, updateTotalUsers} from "./utils/metrics";
 import {startMetricsServer} from "./utils/metricsServer";
 
 
@@ -54,6 +54,9 @@ client.on('ready', async () => {
 
     handleInteractions(client);
 
+    startMetricsServer(config.METRICS_PORT as number);
+    await initMetrics();
+
     await updateStatus();
 
     // Update bot status periodically
@@ -76,8 +79,8 @@ async function updateStatus() {
     const guildCount = client.guilds.cache.size;
     const userCount = await getTotalUsers();
 
-    updateTotalUsers(userCount);
-    updateTotalGuilds(guildCount);
+    await updateTotalUsers(userCount);
+    await updateTotalGuilds(guildCount);
 
     // Set the bot's status
     client.user?.setPresence({
@@ -105,8 +108,6 @@ async function scheduleDailyTask(hour: number, minute: number) {
         timezone: "America/New_York" 
     });
 }
-
-startMetricsServer(config.METRICS_PORT as number);
 
 client.login(config.TOKEN).then(() => {
    logger.info(`Logged in as ${client.user?.tag}!`);

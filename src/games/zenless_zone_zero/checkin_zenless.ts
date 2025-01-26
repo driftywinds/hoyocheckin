@@ -39,7 +39,7 @@ export async function zzzCheckin(profile: Profile): Promise<string> {
         return `Check-in completed for ${username}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('zzzCheckin');
+        await trackError('zzzCheckin');
         return `Error during fetch for ${username}: `;
     }
 }

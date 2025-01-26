@@ -131,7 +131,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // register command
         case 'register': {
-            trackCommandUsage('register');
+            await trackCommandUsage('register');
             await registerCommand(interaction);
 
             break;
@@ -139,7 +139,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // delete command
         case 'delete': {
-            trackCommandUsage('delete');
+            await trackCommandUsage('delete');
             await deleteProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -147,7 +147,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // updateProfile command
         case 'update_profile': {
-            trackCommandUsage('update_profile');
+            await trackCommandUsage('update_profile');
             await updateProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -155,7 +155,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // listProfiles command
         case 'list_profiles': {
-            trackCommandUsage('list_profiles');
+            await trackCommandUsage('list_profiles');
             await listProfilesCommand(interaction);
 
             break;
@@ -168,7 +168,7 @@ export async function handleCommands(interaction: Interaction) {
                 await interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                 break;
             }
-            trackCommandUsage('checkin_all');
+            await trackCommandUsage('checkin_all');
             await checkinAllUsers();
 
             break;
@@ -176,14 +176,14 @@ export async function handleCommands(interaction: Interaction) {
 
         // checkin command
         case 'checkin': {
-            trackCommandUsage('checkin');
+            await trackCommandUsage('checkin');
             await checkinCommand(interaction);
 
             break;
         }
 
         default: {
-            trackCommandUsage('unknown');
+            await trackCommandUsage('unknown');
             logger.error(`Unknown command ${interaction.commandName}`);
         }
     }

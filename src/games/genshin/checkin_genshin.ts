@@ -38,7 +38,7 @@ export async function genshinCheckin(profile: Profile): Promise<string> {
         return `Check-in completed for ${nickname}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('genshinCheckin');
+        await trackError('genshinCheckin');
         return `Error during fetch for ${nickname}: `;
     }
 }

@@ -51,7 +51,7 @@ export async function checkinCommand(interaction: CommandInteraction) {
 
     } catch (error) {
         logger.error('Error during check-in process:', error);
-        trackError('checkinCommand');
+        await trackError('checkinCommand');
         if (!interaction.replied && !interaction.deferred) {
             await interaction.editReply({
                 content: 'An error occurred during the check-in process. Please try again later.'

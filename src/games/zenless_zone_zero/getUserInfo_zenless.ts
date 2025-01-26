@@ -35,7 +35,7 @@ export async function getUserZenlessInfo(cookie: string): Promise<UID[]> {
                 logger.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 logger.error('Error response:', errorResponseText);
-                trackError('getUserZenlessInfo.failedRequest');
+                await trackError('getUserZenlessInfo.failedRequest');
                 continue;
             }
 
@@ -62,7 +62,7 @@ export async function getUserZenlessInfo(cookie: string): Promise<UID[]> {
         return successfulRegions;
     } catch (error) {
         logger.error('Error during fetch:', error);
-        trackError('getUserZenlessInfo');
+        await trackError('getUserZenlessInfo');
         return [];
     }
 }

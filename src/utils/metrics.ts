@@ -1,4 +1,14 @@
 import { Counter, Gauge, Registry} from "prom-client";
+import {
+    decrementMetric,
+    getMetric,
+    incrementMetric,
+    updateMetric,
+    metricsCollection,
+    initMetricsCollection
+} from "../database/metricsRepository";
+import logger from "./logger";
+
 
 export const register = new Registry();
 
@@ -10,18 +20,20 @@ export const totalUsersGauge = new Gauge({
 });
 
 // Update the user gauge periodically
-export const updateTotalUsers = (totalUsers: number) => {
+export const updateTotalUsers = async (totalUsers: number) => {
     totalUsersGauge.set(totalUsers);
+    await updateMetric('total_users', totalUsers);
 };
 
-export const successfullRegisterCounter = new Gauge({
+export const successfulRegisterCounter = new Gauge({
     name: 'successful_register',
     help: 'Total number of successful register',
     registers: [register],
 });
 
-export const incrementSuccessfullRegister = () => {
-    successfullRegisterCounter.inc();
+export const incrementSuccessfullRegister = async () => {
+    successfulRegisterCounter.inc();
+    await incrementMetric('successful_register');
 }
 
 export const invalidCookiesCounter = new Counter({
@@ -30,8 +42,9 @@ export const invalidCookiesCounter = new Counter({
     registers: [register],
 });
 
-export const incrementInvalidCookies = () => {
+export const incrementInvalidCookies = async () => {
     invalidCookiesCounter.inc();
+    await incrementMetric('invalid_cookies');
 }
 
 export const duplicateNameCounter = new Counter({
@@ -40,8 +53,9 @@ export const duplicateNameCounter = new Counter({
     registers: [register],
 });
 
-export const incrementDuplicateName = () => {
+export const incrementDuplicateName = async () => {
     duplicateNameCounter.inc();
+    await incrementMetric('duplicate_name');
 }
 
 // Gauge to track the total number of profiles registered
@@ -51,12 +65,14 @@ export const totalProfilesGauge = new Gauge({
     registers: [register],
 });
 
-export const incrementTotalProfiles = () => {
+export const incrementTotalProfiles = async () => {
     totalProfilesGauge.inc();
+    await incrementMetric('total_profiles');
 }
 
-export const decrementTotalProfiles = () => {
+export const decrementTotalProfiles = async () => {
     totalProfilesGauge.dec();
+    await decrementMetric('total_profiles');
 }
 
 // Gauge to track the total number of guilds the bot is in
@@ -67,8 +83,9 @@ export const totalGuildsGauge = new Gauge({
 });
 
 // Update the guild gauge periodically
-export const updateTotalGuilds = (guildCount: number) => {
+export const updateTotalGuilds = async (guildCount: number) => {
     totalGuildsGauge.set(guildCount);
+    await updateMetric('total_guilds', guildCount);
 };
 
 // Counter to track the total number of commands executed
@@ -80,8 +97,9 @@ export const commandCounter = new Counter({
 });
 
 // Increment the counter whenever a command is executed
-export const trackCommandUsage = (commandName: string) => {
+export const trackCommandUsage = async (commandName: string) => {
     commandCounter.labels(commandName).inc();
+    await incrementMetric(`command_counter_${commandName}`);
 };
 
 // Counter to track the total number of errors encountered
@@ -93,8 +111,9 @@ export const errorCounter = new Counter({
 });
 
 // Increment the counter whenever an error occurs
-export const trackError = (errorType: string) => {
+export const trackError = async (errorType: string) => {
     errorCounter.labels(errorType).inc();
+    await incrementMetric(`error_counter_${errorType}`);
 };
 
 // Gauge to track the bot's heartbeat
@@ -105,6 +124,69 @@ export const botHeartbeatGauge = new Gauge({
 });
 
 // Update the bot's heartbeat periodically
-export const updateBotHeartbeat = () => {
+export const updateBotHeartbeat = async () => {
     botHeartbeatGauge.set(Date.now() / 1000);
+    await updateMetric('bot_heartbeat', Date.now() / 1000);
 };
+
+export async function initMetrics() {
+    try {
+        await initMetricsCollection();
+        const allMetrics = await metricsCollection.find({}).toArray();
+
+        allMetrics.forEach((metric) => {
+            const { name, value } = metric;
+
+            // Handle specific metrics
+            switch (true) {
+                case name === "total_users":
+                    totalUsersGauge.set(value);
+                    break;
+
+                case name === "total_profiles":
+                    totalProfilesGauge.set(value);
+                    break;
+
+                case name === "total_guilds":
+                    totalGuildsGauge.set(value);
+                    break;
+
+                case name === "successful_register":
+                    successfulRegisterCounter.set(value);
+                    break;
+
+                case name === "invalid_cookies":
+                    invalidCookiesCounter.inc(value);
+                    break;
+
+                case name === "duplicate_name":
+                    duplicateNameCounter.inc(value);
+                    break;
+
+                case name.startsWith("command_counter_"):
+                    // Extract the command name
+                    const commandName = name.replace("command_counter_", "");
+                    commandCounter.labels(commandName).inc(value);
+                    break;
+
+                case name.startsWith("error_counter_"):
+                    // Extract the error name
+                    const errorName = name.replace("error_counter_", "");
+                    errorCounter.labels(errorName).inc(value);
+                    break;
+
+                case name === "bot_heartbeat":
+                    botHeartbeatGauge.set(value);
+                    break;
+
+                default:
+                    console.warn(`Unknown metric found in database: ${name}`);
+                    break;
+            }
+        });
+
+        logger.info("Metrics successfully initialized from the database.");
+    } catch (error) {
+        logger.error("Error initializing metrics from the database:", error);
+    }
+}

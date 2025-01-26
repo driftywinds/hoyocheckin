@@ -1,5 +1,5 @@
 import express from 'express';
-import { register } from './metrics';
+import {initMetrics, register} from './metrics';
 import {config} from "../bot";
 
 const app = express();
@@ -12,6 +12,11 @@ app.get('/metrics', async (_req, res) => {
 
 // Start the server
 export const startMetricsServer = (PORT: number) => {
+
+    if(process.env.NODE_ENV === 'test'){
+        return;
+    }
+
     app.listen(PORT, () => {
         console.log(`Metrics server running at http://localhost:${PORT}/metrics`);
     });

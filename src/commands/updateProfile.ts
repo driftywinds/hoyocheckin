@@ -29,7 +29,7 @@ export async function updateProfileCommand(interaction: ChatInputCommandInteract
                 content: 'No data was found for the provided cookies. Please ensure they are correct.',
             });
 
-            incrementInvalidCookies();
+            await incrementInvalidCookies();
             return;
         }
 
