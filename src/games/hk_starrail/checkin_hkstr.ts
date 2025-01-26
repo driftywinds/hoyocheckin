@@ -1,6 +1,6 @@
 import {Profile} from "../../types";
 import logger from "../../utils/logger";
-import {trackError} from "../../utils/metrics";
+import {incrementTotalCheckins, trackError} from "../../utils/metrics";
 
 export async function hkstrCheckin(profile: Profile): Promise<string> {
     
@@ -35,6 +35,7 @@ export async function hkstrCheckin(profile: Profile): Promise<string> {
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
 
+        await incrementTotalCheckins();
         return `Check-in completed for ${username}` + `\n${checkInResult}` + '\n';
     } catch (error) {
         logger.error('Error during fetch:', error);

@@ -1,7 +1,6 @@
 import { Counter, Gauge, Registry} from "prom-client";
 import {
     decrementMetric,
-    getMetric,
     incrementMetric,
     updateMetric,
     metricsCollection,
@@ -10,7 +9,18 @@ import {
 import logger from "./logger";
 
 
-export const register = new Registry();
+export const register = new Registry()
+
+export const totalCheckinsCounter = new Counter({
+    name: 'total_checkins',
+    help: 'Total number of checkins',
+    registers: [register],
+});
+
+export const incrementTotalCheckins = async () => {
+    totalCheckinsCounter.inc();
+    await incrementMetric('total_checkins');
+}
 
 // Gauge to track the total number of users registered
 export const totalUsersGauge = new Gauge({
@@ -139,6 +149,11 @@ export async function initMetrics() {
 
             // Handle specific metrics
             switch (true) {
+
+                case name === "total_checkins":
+                    totalCheckinsCounter.inc(value);
+                    break;
+
                 case name === "total_users":
                     totalUsersGauge.set(value);
                     break;
@@ -163,17 +178,19 @@ export async function initMetrics() {
                     duplicateNameCounter.inc(value);
                     break;
 
-                case name.startsWith("command_counter_"):
+                case name.startsWith("command_counter_"):{
                     // Extract the command name
                     const commandName = name.replace("command_counter_", "");
                     commandCounter.labels(commandName).inc(value);
                     break;
+                }
 
-                case name.startsWith("error_counter_"):
+                case name.startsWith("error_counter_"): {
                     // Extract the error name
                     const errorName = name.replace("error_counter_", "");
                     errorCounter.labels(errorName).inc(value);
                     break;
+                }
 
                 case name === "bot_heartbeat":
                     botHeartbeatGauge.set(value);
