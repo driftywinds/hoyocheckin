@@ -4,7 +4,7 @@ import { genshinCheckin } from '../games/genshin/checkin_genshin';
 import { hkstrCheckin } from '../games/hk_starrail/checkin_hkstr';
 import { zzzCheckin } from '../games/zenless_zone_zero/checkin_zenless';
 import {User} from "../types";
-import logger from "../logger";
+import logger from "../utils/logger";
 
 export async function checkinAllUsers() {
 

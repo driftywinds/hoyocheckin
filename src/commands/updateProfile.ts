@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { saveUser } from '../database/userRepository';
 import { fetchGameData, getUserProfile, parseCookies } from '../hoyolab/profileUtils';
-import logger from "../logger";
+import logger from "../utils/logger";
+import {incrementInvalidCookies} from "../utils/metrics";
 
 export async function updateProfileCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -27,6 +28,8 @@ export async function updateProfileCommand(interaction: ChatInputCommandInteract
             await interaction.editReply({
                 content: 'No data was found for the provided cookies. Please ensure they are correct.',
             });
+
+            incrementInvalidCookies();
             return;
         }
 

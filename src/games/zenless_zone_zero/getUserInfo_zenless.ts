@@ -1,5 +1,6 @@
 import {UID} from "../../types";
-import logger from "../../logger";
+import logger from "../../utils/logger";
+import {trackError} from "../../utils/metrics";
 
 export async function getUserZenlessInfo(cookie: string): Promise<UID[]> {
     const regionsURLS = [
@@ -34,6 +35,7 @@ export async function getUserZenlessInfo(cookie: string): Promise<UID[]> {
                 logger.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
                 logger.error('Error response:', errorResponseText);
+                trackError('getUserZenlessInfo.failedRequest');
                 continue;
             }
 
@@ -60,6 +62,7 @@ export async function getUserZenlessInfo(cookie: string): Promise<UID[]> {
         return successfulRegions;
     } catch (error) {
         logger.error('Error during fetch:', error);
+        trackError('getUserZenlessInfo');
         return [];
     }
 }

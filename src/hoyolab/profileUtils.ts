@@ -3,7 +3,7 @@ import { getUserGenshinInfo } from '../games/genshin/getUserInfo_genshin';
 import { getUserStarrailInfo } from '../games/hk_starrail/getUserInfo_hkstr';
 import { getUserZenlessInfo } from '../games/zenless_zone_zero/getUserInfo_zenless';
 import { UID, User } from '../types';
-import logger from "../logger";
+import logger from "../utils/logger";
 
 /**
  * Retrieve a user's profile by Discord ID and nickname.

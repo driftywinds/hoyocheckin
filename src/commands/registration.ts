@@ -16,7 +16,14 @@ import {
 import { Profile, User } from '../types';
 import { findUserByDiscordId, saveUser } from '../database/userRepository';
 import { fetchGameData, parseCookies } from '../hoyolab/profileUtils';
-import logger from "../logger";
+import logger from "../utils/logger";
+import {
+    incrementDuplicateName,
+    incrementInvalidCookies,
+    incrementSuccessfullRegister,
+    incrementTotalProfiles,
+    updateTotalUsers
+} from "../utils/metrics";
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
@@ -107,6 +114,8 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
                 0xff0000,
                 interaction
             );
+
+            incrementDuplicateName();
             return;
         }
 
@@ -126,6 +135,8 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
                 0xff0000,
                 interaction
             );
+
+            incrementInvalidCookies();
             return;
         }
 
@@ -152,6 +163,8 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
             };
             await saveUser(newUser);
         }
+        incrementTotalProfiles();
+        incrementSuccessfullRegister();
 
         // Respond with success
         const checkinTime: number = getNextDailyTimeInUTC();

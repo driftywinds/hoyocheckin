@@ -1,5 +1,5 @@
 import {MongoClient, Db} from 'mongodb';
-import logger from "../logger";
+import logger from "../utils/logger";
 
 let db: Db;
 export const connectToDatabase = async (MONGO_URI: string, DATABASE_NAME: string): Promise<Db> => {

@@ -9,7 +9,8 @@ import {config} from "../bot";
 import {deleteProfileCommand} from "../commands/delete";
 import {listProfilesCommand} from "../commands/listProfiles";
 import {updateProfileCommand} from "../commands/updateProfile";
-import logger from "../logger";
+import logger from "../utils/logger";
+import {trackCommandUsage} from "../utils/metrics";
 
 const commands = [
     {
@@ -130,6 +131,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // register command
         case 'register': {
+            trackCommandUsage('register');
             await registerCommand(interaction);
 
             break;
@@ -137,6 +139,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // delete command
         case 'delete': {
+            trackCommandUsage('delete');
             await deleteProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -144,6 +147,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // updateProfile command
         case 'update_profile': {
+            trackCommandUsage('update_profile');
             await updateProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -151,6 +155,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // listProfiles command
         case 'list_profiles': {
+            trackCommandUsage('list_profiles');
             await listProfilesCommand(interaction);
 
             break;
@@ -160,10 +165,10 @@ export async function handleCommands(interaction: Interaction) {
 
             // Check if user is bot admin
             if(interaction.user.id !== config.BOT_ADMIN_ID){
-                interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
+                await interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                 break;
             }
-
+            trackCommandUsage('checkin_all');
             await checkinAllUsers();
 
             break;
@@ -171,13 +176,16 @@ export async function handleCommands(interaction: Interaction) {
 
         // checkin command
         case 'checkin': {
+            trackCommandUsage('checkin');
             await checkinCommand(interaction);
 
             break;
         }
 
-        default:
+        default: {
+            trackCommandUsage('unknown');
             logger.error(`Unknown command ${interaction.commandName}`);
+        }
     }
 }
 
