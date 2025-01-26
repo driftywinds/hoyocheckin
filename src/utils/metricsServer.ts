@@ -11,11 +11,6 @@ app.get('/metrics', async (_req, res) => {
 
 // Start the server
 export const startMetricsServer = (PORT: number) => {
-
-    if(process.env.NODE_ENV !== "test"){
-        return;
-    }
-
     app.listen(PORT, () => {
         console.log(`Metrics server running at http://localhost:${PORT}/metrics`);
     });
