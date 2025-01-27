@@ -2,11 +2,16 @@ import {Profile} from "../types";
 import {genshinCheckin} from "../games/genshin/checkin_genshin";
 import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
 import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
+
 jest.mock('../database/metricsRepository', () => ({
     updateMetric: jest.fn(),
     incrementMetric: jest.fn(),
     decrementMetric: jest.fn(),
     initMetricsCollection: jest.fn(),
+}));
+jest.mock('../utils/encryption', () => ({
+    decrypt: jest.fn((value) => value),
+    decryptParsedCookies: jest.fn((cookies) => cookies),
 }));
 
 describe('Check-In API Integration Tests', () => {

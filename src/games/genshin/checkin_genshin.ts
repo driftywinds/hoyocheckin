@@ -1,12 +1,13 @@
 import {Profile} from "../../types";
 import logger from "../../utils/logger";
 import {incrementTotalCheckins, trackError} from "../../utils/metrics";
+import {decrypt} from "../../utils/encryption";
 
 export async function genshinCheckin(profile: Profile): Promise<string> {
 
     const url = 'https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us&act_id=e202102251931481';
     const nickname = profile.nickname;
-    const cookies = 'ltoken_v2='+profile.pasted_cookie.ltoken_v2+';'+'ltuid_v2='+profile.pasted_cookie.ltuid_v2+';';
+    const cookies = 'ltoken_v2='+decrypt(profile.pasted_cookie.ltoken_v2)+';'+'ltuid_v2='+decrypt(profile.pasted_cookie.ltuid_v2)+';';
 
     if (!url) {
         return `Check-in skipped for ${nickname}: Genshin Impact check-in is disabled.`;

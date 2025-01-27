@@ -18,6 +18,10 @@ jest.mock('../bot', () => ({
         DATABASE_NAME: 'mockDatabase',
     },
 }));
+jest.mock('../utils/encryption', () => ({
+    encrypt: jest.fn((value) => value),
+    encryptParsedCookies: jest.fn((cookies) => cookies),
+}));
 
 jest.mock('../hoyolab/profileUtils', () => ({
     parseCookies: jest.fn(),
