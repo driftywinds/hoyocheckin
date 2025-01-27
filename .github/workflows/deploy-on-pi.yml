@@ -50,5 +50,5 @@ jobs:
             cd /home/bots/Dailycheckin_Bot
             git pull origin main
             docker compose down --remove-orphans
-            docker compose --env-file .env.production up -d --build
+            docker compose up -d --build
           EOF
