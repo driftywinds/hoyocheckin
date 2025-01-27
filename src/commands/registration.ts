@@ -118,6 +118,13 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
             return;
         }
 
+        if(nickname === 'Cookie expired'){
+            await interaction.editReply({
+                content: 'That nickname is reserved. Please choose a different nickname.',
+            });
+            return;
+        }
+
         // Parse cookies and fetch game data
         const parsedCookies = parseCookies(rawCookies);
         const { genshinUIDs, hkstrUIDs, zenlessUIDs, responseMessage } = await fetchGameData(rawCookies);
