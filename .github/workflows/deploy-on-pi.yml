@@ -20,6 +20,10 @@ jobs:
           tags: tag:ci
           version: 1.52.0
 
+      - name: Check Connection
+        run: |
+          nslookup ${{ secrets.PI_TAILSCALE_IP }}
+
       - name: Verify Tailscale Connection
         run: |
           if ! tailscale status; then
