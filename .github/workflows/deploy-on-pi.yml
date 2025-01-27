@@ -36,9 +36,12 @@ jobs:
           echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-      - name: Check Connection
+      - name: Test Ping to Tailscale IP
         run: |
-          nslookup ${{ secrets.PI_TAILSCALE_IP }}
+          ping -c 4 ${{ secrets.PI_TAILSCALE_IP }} || {
+            echo "Ping failed. The IP might be unreachable.";
+            exit 1;
+          }
 
       - name: Add Host to Known Hosts
         run: |
