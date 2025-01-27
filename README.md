@@ -92,7 +92,12 @@ If you would like to contribute to the project, feel free to submit a pull reque
    METRICS_PORT=3001
    ``` 
 4. Your `.env` file should have the environment type appended to the filename (e.g., `.env.development`, `.env.production`).   
-5. Start the bot: `npm start`
+5. You must also have a `.env.encryption` file with the following structure:
+   ```env
+   ENCRYPTION_KEY=your_32char_encryption_key
+   ```
+   This key is used to encrypt and decrypt the cookies stored in the database.
+6. Start the bot: `npm start`
 
 ### Running the bot
 
