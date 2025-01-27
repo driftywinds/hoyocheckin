@@ -22,14 +22,4 @@ jobs:
         run: npm install
 
       - name: Run tests
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          BOT_ADMIN_ID: ${{ vars.BOT_ADMIN_ID }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          DATABASE_NAME: ${{ vars.DATABASE_NAME }}
-          METRICS_PORT: ${{ vars.METRICS_PORT }}
         run: npm test
-
-    environment:
-      name: Tests
