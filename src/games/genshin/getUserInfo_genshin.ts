@@ -1,4 +1,6 @@
 import {UID} from "../../types";
+import logger from "../../utils/logger";
+import {trackError} from "../../utils/metrics";
 
 export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
     const regionsURLS = [
@@ -30,9 +32,10 @@ export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
             const hoyolabResponse: Response = await fetch(url, options);
 
             if (!hoyolabResponse.ok) {
-                console.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
+                logger.error(`Request for region ${region} failed with status:`, hoyolabResponse.status);
                 const errorResponseText = await hoyolabResponse.text();
-                console.error('Error response:', errorResponseText);
+                logger.error('Error response:', errorResponseText);
+                await trackError('getUserGenshinInfo.failedRequest');
                 continue; 
             }
 
@@ -48,19 +51,18 @@ export async function getUserGenshinInfo(cookie: string): Promise<UID[]> {
                 const level:number = characterInfo.level;
                 const region_name = characterInfo.region_name;
 
-                console.log(`Found UID for user in ${region}`);
+                logger.info(`Found UID for user in ${region}`);
 
                 // Store the information for successful regions
                 successfulRegions.push({ region, gameUid, nickname, level, region_name });
-            } else {
-                console.error(`Could not find UID for user in ${region}`);
             }
         }
 
         // return regions and their respective UIDs
         return successfulRegions;
     } catch (error) {
-        console.error('Error during fetch:', error);
+        logger.error('Error during fetch:', error);
+        await trackError('getUserGenshinInfo');
         return [];
     }
 }

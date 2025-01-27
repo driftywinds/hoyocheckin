@@ -2,6 +2,13 @@ jest.mock('../database/userRepository', () => ({
     findUserByDiscordId: jest.fn(),
     deleteProfile: jest.fn(),
 }));
+jest.mock('../database/metricsRepository', () => ({
+    updateMetric: jest.fn(),
+    incrementMetric: jest.fn(),
+    decrementMetric: jest.fn(),
+    initMetricsCollection: jest.fn(),
+}));
+
 
 import { deleteProfileCommand, deleteProfileConfirm } from '../commands/delete';
 import { findUserByDiscordId, deleteProfile } from '../database/userRepository';

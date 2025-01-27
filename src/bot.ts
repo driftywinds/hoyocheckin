@@ -1,14 +1,16 @@
 import {Client, GatewayIntentBits, Interaction} from 'discord.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
+import logger from "./utils/logger";
 
 import {checkinAllUsers} from './hoyolab/checkinAllUsers';
 import {connectToDatabase} from "./database/dbConnection";
 import {handleButtonInteraction} from "./interactions/buttons";
 import {handleCommands, registerCommands} from './interactions/commands';
 import {handleModalSubmit} from "./interactions/modalSubmit";
-import {handleStringSelectInteraction} from "./interactions/stringSelect";
 import {getTotalUsers} from "./database/userRepository";
+import {initMetrics, updateBotHeartbeat, updateTotalGuilds, updateTotalUsers} from "./utils/metrics";
+import {startMetricsServer} from "./utils/metricsServer";
 
 
 // Create client object and list intents
@@ -21,7 +23,7 @@ const client = new Client({ intents: [
 const environment: string = process.argv[2] || 'development';
 dotenv.config({ path: `.env.${environment}` });
 
-console.log(`Loaded environment file: .env.${environment}`);
+logger.info(`Loaded environment file: .env.${environment}`);
 
 // Bot environment variables
 export const config = {
@@ -30,26 +32,30 @@ export const config = {
     BOT_ADMIN_ID: process.env.BOT_ADMIN_ID || '',
     MONGO_URI: process.env.MONGO_URI || '',
     DATABASE_NAME: process.env.DATABASE_NAME || '',
+    METRICS_PORT: process.env.METRICS_PORT || 3001,
 }
 
-if(!config.TOKEN || !config.CLIENT_ID || !config.BOT_ADMIN_ID || !config.MONGO_URI || !config.DATABASE_NAME){
-    console.error('Missing environment variables');
+if(!config.TOKEN || !config.CLIENT_ID || !config.BOT_ADMIN_ID || !config.MONGO_URI || !config.DATABASE_NAME || !config.METRICS_PORT){
+    logger.error('Missing environment variables');
     process.exit(1);
 }
 
 // When ready
 client.on('ready', async () => {
     // Connect to MongoDB
-    console.log('Initializing database connection...');
+    logger.info('Initializing database connection...');
     await connectToDatabase(config.MONGO_URI, config.DATABASE_NAME);
-    console.log('Database connection established.');
+    logger.info('Database connection established.');
 
     // Register slash commands
-    console.log('Registering slash commands...');
+    logger.info('Registering slash commands...');
     await registerCommands(config.CLIENT_ID, config.TOKEN);
-    console.log('Slash commands registered.');
+    logger.info('Slash commands registered.');
 
     handleInteractions(client);
+
+    startMetricsServer(config.METRICS_PORT as number);
+    await initMetrics();
 
     await updateStatus();
 
@@ -58,15 +64,23 @@ client.on('ready', async () => {
         await updateStatus();
     }, 300000);
 
+    // Update bot heartbeat periodically
+    setInterval(() => {
+        updateBotHeartbeat();
+    }, 60000);
+
     // Schedule Daily checkin task
-    console.log('Scheduling daily check-in task...');
+    logger.info('Scheduling daily check-in task...');
     await scheduleDailyTask(12, 7);
-    console.log('Daily check-in task scheduled.');
+    logger.info('Daily check-in task scheduled.');
 });
 
 async function updateStatus() {
     const guildCount = client.guilds.cache.size;
     const userCount = await getTotalUsers();
+
+    await updateTotalUsers(userCount);
+    await updateTotalGuilds(guildCount);
 
     // Set the bot's status
     client.user?.setPresence({
@@ -76,7 +90,7 @@ async function updateStatus() {
         status: 'online',
     });
 
-    console.log(`Updated status: ${guildCount} servers, ${userCount} users`);
+    logger.info(`Updated status: ${guildCount} servers, ${userCount} users`);
 }
 
 
@@ -87,7 +101,7 @@ async function scheduleDailyTask(hour: number, minute: number) {
     const time = `${minute} ${hour} * * *`;
 
     cron.schedule(time, async () => {
-        console.log(`Task running at ${hour}:${minute}`);
+        logger.info(`Task running at ${hour}:${minute}`);
         await checkinAllUsers();
     }, {
         scheduled: true,
@@ -95,28 +109,13 @@ async function scheduleDailyTask(hour: number, minute: number) {
     });
 }
 
-export function getTime(): string {
-    const timestamp = Date.now();
-    const date = new Date(timestamp);
-
-    // Use Date methods to format the date and time components
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-}
-
 client.login(config.TOKEN).then(() => {
-    console.log(`[${getTime()}] Logged in as ${client.user?.tag}!`);
+   logger.info(`Logged in as ${client.user?.tag}!`);
 });
 
-// Interaction Handling
 
+
+// Interaction Handling
 export const handleInteractions = (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
         if (interaction.isButton()){
@@ -125,8 +124,6 @@ export const handleInteractions = (client: Client): void => {
             await handleCommands(interaction);
         }else if(interaction.isModalSubmit()){
             await handleModalSubmit(interaction);
-        }else if(interaction.isStringSelectMenu()){
-            await handleStringSelectInteraction(interaction);
         }
     });
 }

@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import {deleteProfile, findUserByDiscordId} from "../database/userRepository";
 import {User} from "../types";
+import {decrementTotalProfiles} from "../utils/metrics";
 
 // Function to handle the delete profile command
 export async function deleteProfileCommand(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -52,8 +53,19 @@ export async function deleteProfileConfirm(interaction: ButtonInteraction): Prom
 
     const nickname: string = interaction.customId.split(':')[1];
 
+    const user: User | null = await findUserByDiscordId(interaction.user.id);
+
+    if(!user || !user.profiles.some(profile => profile.nickname === nickname)){
+        await interaction.editReply({
+            content: `You do not have a profile named \`${nickname}\`.`
+        });
+        return;
+    }
+
     // Delete the profile from the database
     await deleteProfile(interaction.user.id, nickname);
+
+    await decrementTotalProfiles();
 
     await interaction.editReply({
         content: `Profile ${nickname} has been deleted.`

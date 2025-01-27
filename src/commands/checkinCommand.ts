@@ -4,6 +4,8 @@ import { genshinCheckin } from "../games/genshin/checkin_genshin";
 import {hkstrCheckin} from "../games/hk_starrail/checkin_hkstr";
 import {zzzCheckin} from "../games/zenless_zone_zero/checkin_zenless";
 import {Profile, User} from "../types";
+import logger from "../utils/logger";
+import {trackError} from "../utils/metrics";
 
 export async function checkinCommand(interaction: CommandInteraction) {
 
@@ -48,7 +50,8 @@ export async function checkinCommand(interaction: CommandInteraction) {
         });
 
     } catch (error) {
-        console.error('Error during check-in process:', error);
+        logger.error('Error during check-in process:', error);
+        await trackError('checkinCommand');
         if (!interaction.replied && !interaction.deferred) {
             await interaction.editReply({
                 content: 'An error occurred during the check-in process. Please try again later.'

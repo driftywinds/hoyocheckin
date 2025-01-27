@@ -33,11 +33,6 @@ jobs:
           echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Debug Connection
-        run: |
-          ping -c 4 ${{ secrets.PI_TAILSCALE_IP }}
-          nslookup ${{ secrets.PI_TAILSCALE_IP }}
-
       - name: Add Host to Known Hosts
         run: |
           touch ~/.ssh/known_hosts

@@ -1,15 +1,16 @@
-import {Interaction, REST, Routes, ApplicationCommandType, ChatInputCommandInteraction} from 'discord.js';
+import {Interaction, REST, Routes, ApplicationCommandType, ChatInputCommandInteraction, MessageFlags} from 'discord.js';
 
 import {registerCommand} from '../commands/registration';
 import {checkinCommand} from "../commands/checkinCommand";
 
 import { checkinAllUsers } from '../hoyolab/checkinAllUsers';
-import {getTime} from "../bot";
 
 import {config} from "../bot";
 import {deleteProfileCommand} from "../commands/delete";
 import {listProfilesCommand} from "../commands/listProfiles";
 import {updateProfileCommand} from "../commands/updateProfile";
+import logger from "../utils/logger";
+import {trackCommandUsage} from "../utils/metrics";
 
 const commands = [
     {
@@ -82,7 +83,7 @@ export const registerCommands = async (clientId: string, token: string) => {
                 {body: commands},
             );
         } catch (error) {
-            console.error(error);
+            logger.error(error);
         }
     })();
 };
@@ -92,8 +93,7 @@ const cooldowns = new Map<string, Map<string, number>>();
 
 export async function handleCommands(interaction: Interaction) {
     if (!interaction.isCommand()) return;
-    const time: string = getTime();
-    console.log(`${time}| Received command ${interaction.commandName} from ${interaction.user.tag}`);
+    logger.info(`Received command ${interaction.commandName} from ${interaction.user.tag}`);
 
     const command = commands.find(cmd => cmd.name === interaction.commandName);
     if (!command) {
@@ -115,7 +115,10 @@ export async function handleCommands(interaction: Interaction) {
 
             if (now < expirationTime) {
                 const timeLeft: number = (expirationTime - now) / 1000;
-                await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${interaction.commandName}\` command.`, ephemeral: true });
+                await interaction.reply({
+                    content: `Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${interaction.commandName}\` command.`,
+                    flags: MessageFlags.Ephemeral
+                });
                 return;
             }
         }
@@ -128,6 +131,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // register command
         case 'register': {
+            await trackCommandUsage('register');
             await registerCommand(interaction);
 
             break;
@@ -135,6 +139,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // delete command
         case 'delete': {
+            await trackCommandUsage('delete');
             await deleteProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -142,6 +147,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // updateProfile command
         case 'update_profile': {
+            await trackCommandUsage('update_profile');
             await updateProfileCommand(interaction as ChatInputCommandInteraction);
 
             break;
@@ -149,6 +155,7 @@ export async function handleCommands(interaction: Interaction) {
 
         // listProfiles command
         case 'list_profiles': {
+            await trackCommandUsage('list_profiles');
             await listProfilesCommand(interaction);
 
             break;
@@ -158,10 +165,10 @@ export async function handleCommands(interaction: Interaction) {
 
             // Check if user is bot admin
             if(interaction.user.id !== config.BOT_ADMIN_ID){
-                interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
+                await interaction.reply('You do not have permission to use this command. Use /checkin to check yourself in manually.');
                 break;
             }
-
+            await trackCommandUsage('checkin_all');
             await checkinAllUsers();
 
             break;
@@ -169,13 +176,16 @@ export async function handleCommands(interaction: Interaction) {
 
         // checkin command
         case 'checkin': {
+            await trackCommandUsage('checkin');
             await checkinCommand(interaction);
 
             break;
         }
 
-        default:
-            console.error(`Unknown command ${interaction.commandName}`);
+        default: {
+            await trackCommandUsage('unknown');
+            logger.error(`Unknown command ${interaction.commandName}`);
+        }
     }
 }
 
