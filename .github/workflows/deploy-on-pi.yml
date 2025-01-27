@@ -20,10 +20,6 @@ jobs:
           tags: tag:ci
           version: 1.52.0
 
-      - name: Check Connection
-        run: |
-          nslookup ${{ secrets.PI_TAILSCALE_IP }}
-
       - name: Verify Tailscale Connection
         run: |
           if ! tailscale status; then
@@ -39,6 +35,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          
+      - name: Check Connection
+        run: |
+          nslookup ${{ secrets.PI_TAILSCALE_IP }}
 
       - name: Add Host to Known Hosts
         run: |
