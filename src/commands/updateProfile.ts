@@ -3,6 +3,7 @@ import { saveUser } from '../database/userRepository';
 import { fetchGameData, getUserProfile, parseCookies } from '../hoyolab/profileUtils';
 import logger from "../utils/logger";
 import {incrementInvalidCookies} from "../utils/metrics";
+import {encrypt, encryptParsedCookies} from "../utils/encryption";
 
 export async function updateProfileCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -33,14 +34,17 @@ export async function updateProfileCommand(interaction: ChatInputCommandInteract
             return;
         }
 
+        const encryptedParsedCookies = encryptParsedCookies(parsedCookies);
+        const encryptedRawCookies = encrypt(newCookies);
+
         // Update the profile
         user.profiles[profileIndex] = {
             ...user.profiles[profileIndex],
-            raw_cookie: newCookies,
-            pasted_cookie: parsedCookies,
             genshin: genshinUIDs,
             hk_str: hkstrUIDs,
             zzz: zenlessUIDs,
+            pasted_cookie: encryptedParsedCookies,
+            raw_cookie: encryptedRawCookies,
         };
 
         await saveUser(user);

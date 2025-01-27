@@ -23,6 +23,7 @@ import {
     incrementSuccessfullRegister,
     incrementTotalProfiles, trackError
 } from "../utils/metrics";
+import {encrypt, encryptParsedCookies} from "../utils/encryption";
 
 const INSTRUCTIONS_LINK: string = 'https://drive.google.com/file/d/1-xQcXzajgvd2dq3r9ocVW5fUcf6DybG0/view?usp=sharing';
 
@@ -146,14 +147,17 @@ export async function handleRegistrationSubmit(interaction: ModalSubmitInteracti
             return;
         }
 
+        const encryptedParsedCookies = encryptParsedCookies(parsedCookies);
+        const encryptedRawCookies = encrypt(rawCookies);
+
         // Create the new profile
         const newProfile: Profile = {
             nickname,
             genshin: genshinUIDs,
             hk_str: hkstrUIDs,
             zzz: zenlessUIDs,
-            pasted_cookie: parsedCookies,
-            raw_cookie: rawCookies,
+            pasted_cookie: encryptedParsedCookies,
+            raw_cookie: encryptedRawCookies,
         };
 
         // Save the user
