@@ -11,6 +11,7 @@ export async function checkinAllUsers() {
     // Gather all user's information from database
     const users: User[] = await getAllUsers();
 
+
     for(const user of users){
 
         logger.info(`--Checking in user: ${user.username}--`);
@@ -35,6 +36,9 @@ export async function checkinAllUsers() {
                 const zzzResult: string = await zzzCheckin(profile);
                 logger.info(zzzResult);
             }
+
+            // Delay between check-ins
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
     }
 }
