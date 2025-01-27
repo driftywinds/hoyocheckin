@@ -35,6 +35,10 @@ export async function genshinCheckin(profile: Profile): Promise<string> {
         const responseJson = await hoyolabResponse.json();
         const checkInResult: string = responseJson.message;
 
+        if(checkInResult.includes('Not logged in')){
+            return `Check-in failed for ${nickname}: **Cookie expired!!!**\nPlease update your cookie with \`/update_profile ${nickname} {new_cookie}\`\n`;
+        }
+
         await incrementTotalCheckins();
         return `Check-in completed for ${nickname}` + `\n${checkInResult}` + '\n';
     } catch (error) {

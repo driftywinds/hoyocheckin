@@ -57,6 +57,17 @@ export const incrementInvalidCookies = async () => {
     await incrementMetric('invalid_cookies');
 }
 
+export const expiredCookiesCounter = new Counter({
+    name: 'expired_cookies',
+    help: 'Total number of expired cookies',
+    registers: [register],
+});
+
+export const incrementExpiredCookies = async () => {
+    expiredCookiesCounter.inc();
+    await incrementMetric('expired_cookies');
+}
+
 export const duplicateNameCounter = new Counter({
     name: 'duplicate_name',
     help: 'Total number of duplicate names',
@@ -172,6 +183,10 @@ export async function initMetrics() {
 
                 case name === "invalid_cookies":
                     invalidCookiesCounter.inc(value);
+                    break;
+
+                case name === "expired_cookies":
+                    expiredCookiesCounter.inc(value);
                     break;
 
                 case name === "duplicate_name":

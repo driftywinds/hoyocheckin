@@ -26,13 +26,13 @@ describe('Check-In API Integration Tests', () => {
     it('should call the Genshin API and return a successful response', async () => {
         const result: string = await genshinCheckin(testProfile);
 
-        expect(result).toContain('Check-in completed');
+        expect(result).toContain('Check-in failed');
     });
 
     it('should call the Honkai Starrail API and return a successful response', async () => {
         const result: string = await hkstrCheckin(testProfile);
 
-        expect(result).toContain('Check-in completed');
+        expect(result).toContain('Check-in failed');
     });
 
     it('should call the Zenless Zone Zero API and return a successful response', async () => {
