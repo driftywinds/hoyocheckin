@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: '21.6.1'
 
+      - name: Create .env file for testing
+        run: echo "ENCRYPTION_KEY=fake_testing_key_32_chars" > .env.encryption
+
       - name: Install dependencies
         run: npm install
 
