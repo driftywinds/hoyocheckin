@@ -12,3 +12,9 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     command: npm run start
+    networks:
+      - monitoring
+
+networks:
+    monitoring:
+        external: true
